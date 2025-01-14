@@ -9,14 +9,14 @@
 <body>
     <div class="content">
         <img class="banner-logo" src="resources/img/1.png" alt="">
-        <div class="login">
+        <form class="form" id="login-form" action="php/HandleLogin.php" method="post">
             <h1>Bem-vindo ao FlowStock!</h1>
-            <input type="text" class="login-inputs" id="login-email" placeholder="Digite seu email">
-            <input type="text" class="login-inputs" id="login-password" placeholder="Digite sua senha">
+            <input type="email" class="inputs" id="login-email" placeholder="Digite seu email">
+            <input type="password" class="inputs" id="login-password" placeholder="Digite sua senha">
             <input type="submit" id="login-submit" value="ENTRAR">
-            <a href="#" id="login-forgotpassword">Esqueci minha senha</a>
-            <input type="submit" id="login-register" value="CADASTRAR">
-        </div>
+            <a href="login-pages/redefinepasssword.html" id="login-forgotpassword" onclick="toggleForgotPassword()">Esqueci minha senha</a>
+            <input type="button" id="login-register" value="CADASTRAR">
+        </form>
     </div>
 </body>
 </html>
