@@ -1,3 +1,9 @@
 [submodule "php/3rd_party/vendor/graham-campbell/result-type"]
 	path = php/3rd_party/vendor/graham-campbell/result-type
 	url = https://github.com/GrahamCampbell/Result-Type
+[submodule "php/3rd_party/vendor/phpmailer/phpmailer"]
+	path = php/3rd_party/vendor/phpmailer/phpmailer
+	url = https://github.com/PHPMailer/PHPMailer
+[submodule "php/3rd_party/vendor/phpoption/phpoption"]
+	path = php/3rd_party/vendor/phpoption/phpoption
+	url = https://github.com/schmittjoh/php-option
