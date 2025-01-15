@@ -7,3 +7,15 @@
 [submodule "php/3rd_party/vendor/phpoption/phpoption"]
 	path = php/3rd_party/vendor/phpoption/phpoption
 	url = https://github.com/schmittjoh/php-option
+[submodule "php/3rd_party/vendor/vlucas/phpdotenv"]
+	path = php/3rd_party/vendor/vlucas/phpdotenv
+	url = https://github.com/vlucas/phpdotenv
+[submodule "php/3rd_party/vendor/symfony/polyfill-ctype"]
+	path = php/3rd_party/vendor/symfony/polyfill-ctype
+	url = https://github.com/symfony/polyfill-ctype
+[submodule "php/3rd_party/vendor/symfony/polyfill-mbstring"]
+	path = php/3rd_party/vendor/symfony/polyfill-mbstring
+	url = https://github.com/symfony/polyfill-mbstring
+[submodule "php/3rd_party/vendor/symfony/polyfill-php80"]
+	path = php/3rd_party/vendor/symfony/polyfill-php80
+	url = https://github.com/symfony/polyfill-php80
