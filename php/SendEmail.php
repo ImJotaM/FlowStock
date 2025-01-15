@@ -1,15 +1,28 @@
 <?php
 
-use PHPMAILER\PHPMAILER\PHPMAILER;
-use PHPMailer\PHPMailer\Exception;
-
 require '3rd_party/vendor/autoload.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable('../private');
+$dotenv->load();
+
+$ouremail = 'weareflowstock@gmail.com';
+$ourpass = $_ENV['SMTP_PASSWORD'];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
     $email = $_POST['email'];
 
     if (empty($email)) {
         echo "O campo de e-mail é obrigatório!";
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Endereço de e-mail inválido!";
         exit();
     }
 
@@ -20,12 +33,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'seuemail@gmail.com';
-        $mail->Password = 'suasenha';
+        $mail->Username = $ouremail;
+        $mail->Password = $ourpass;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
-        $mail->setFrom('seuemail@gmail.com', 'FlowStock');
+        $mail->setFrom($ouremail, 'FlowStock');
         $mail->addAddress($email);
 
         $mail->isHTML(true);
