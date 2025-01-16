@@ -1,21 +1,21 @@
-[submodule "php/3rd_party/vendor/graham-campbell/result-type"]
-	path = php/3rd_party/vendor/graham-campbell/result-type
+[submodule "3rd_party/PHP/vendor/graham-campbell/result-type"]
+	path = 3rd_party/PHP/vendor/graham-campbell/result-type
 	url = https://github.com/GrahamCampbell/Result-Type
-[submodule "php/3rd_party/vendor/phpmailer/phpmailer"]
-	path = php/3rd_party/vendor/phpmailer/phpmailer
+[submodule "3rd_party/PHP/vendor/phpmailer/phpmailer"]
+	path = 3rd_party/PHP/vendor/phpmailer/phpmailer
 	url = https://github.com/PHPMailer/PHPMailer
-[submodule "php/3rd_party/vendor/phpoption/phpoption"]
-	path = php/3rd_party/vendor/phpoption/phpoption
+[submodule "3rd_party/PHP/vendor/phpoption/phpoption"]
+	path = 3rd_party/PHP/vendor/phpoption/phpoption
 	url = https://github.com/schmittjoh/php-option
-[submodule "php/3rd_party/vendor/vlucas/phpdotenv"]
-	path = php/3rd_party/vendor/vlucas/phpdotenv
+[submodule "3rd_party/PHP/vendor/vlucas/phpdotenv"]
+	path = 3rd_party/PHP/vendor/vlucas/phpdotenv
 	url = https://github.com/vlucas/phpdotenv
-[submodule "php/3rd_party/vendor/symfony/polyfill-ctype"]
-	path = php/3rd_party/vendor/symfony/polyfill-ctype
+[submodule "3rd_party/PHP/vendor/symfony/polyfill-ctype"]
+	path = 3rd_party/PHP/vendor/symfony/polyfill-ctype
 	url = https://github.com/symfony/polyfill-ctype
-[submodule "php/3rd_party/vendor/symfony/polyfill-mbstring"]
-	path = php/3rd_party/vendor/symfony/polyfill-mbstring
+[submodule "3rd_party/PHP/vendor/symfony/polyfill-mbstring"]
+	path = 3rd_party/PHP/vendor/symfony/polyfill-mbstring
 	url = https://github.com/symfony/polyfill-mbstring
-[submodule "php/3rd_party/vendor/symfony/polyfill-php80"]
-	path = php/3rd_party/vendor/symfony/polyfill-php80
+[submodule "3rd_party/PHP/vendor/symfony/polyfill-php80"]
+	path = 3rd_party/PHP/vendor/symfony/polyfill-php80
 	url = https://github.com/symfony/polyfill-php80
