@@ -2,6 +2,8 @@
 
 :root {
     --color-backgorund: rgb(240, 240, 240);
+    --color-content: white;
+    --color-banner-shadow: rgba(167, 167, 167, 0.279);
 }
 
 * {
@@ -11,88 +13,123 @@
     font-optical-sizing: auto;
 }
 
-html, body {
+html {
+
+    height: 100%;
+    width: 100%;
+
+}
+
+body {
 
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* flex-direction: column; */
+
     height: 100%;
+    width: 100%;
 
     background-color: var(--color-backgorund);
 }
 
 .content {
-    background-color: white;
+
     display: flex;
-    align-items: center;
     justify-content: center;
-    text-align: center;
     align-items: stretch;
+
     border-radius: 15px;
-    margin: 2rem;
+    background-color: var(--color-content);
+
 }
 
 .banner-logo {
-    border-radius: 15px;
-    box-shadow: 8px 0 20px rgba(167, 167, 167, 0.279);
+
     max-width: 100%;
+
+    border-radius: 15px;
+    box-shadow: 8px 0 20px var(--color-banner-shadow);
+
 }
 
 .form {
-    background-color: white;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    margin-left: 6rem;
-    margin-right: 6rem;
-    margin-top: 2rem;
+    align-items: center;
+    text-align: center;
+
+    margin: 2rem 6rem 0rem 6rem;
+
+    background-color: white;
+
 }
 
 .form h1 {
     margin-top: 1rem;
 }
 
-.inputs {
-    border: 0;
+.text-inputs {
+
+    width: 80%;
     height: 1.5rem;
-    padding: 0.5rem 0.5rem 0.1rem 0.5rem;
-    border-bottom: 2px solid black;
+
     margin: 2.5rem 2rem 0rem 2rem;
+    padding: 0.5rem 0.5rem 0.1rem 0.5rem;
+
+    border: none;
+    border-bottom: 2px solid black;
+
 }
 
-.inputs:focus {
+.text-inputs:focus {
     outline: none;
 }
 
-.inputs::placeholder {
+.text-inputs::placeholder {
     color: black;
 }
 
-#login-submit {
-    margin: 3rem 2rem 0rem 2rem;
+.button-inputs {
+
+    width: 80%;
     height: 3rem;
-    background-color: black;
-    color: white;
-    font-size: 20;
-    font-weight: bold;
+
+    margin: 0rem 2rem 0rem 2rem;
+
     border: 0;
+    font-weight: bold;
     border-radius: 5px;
-    transition: 0.1s;
+
+    transition: background-color 0.3s, border-color 0.3s;
+
+}
+
+#login-submit {
+
+    margin-top: 3rem;
+    
+    color: white;
+    background-color: black;
+
 }
 
 #login-submit:hover {
+
     cursor: pointer;
     background-color: #282828;
+
 }
 
 #login-forgotpassword {
-    margin: 1rem 2rem 0rem 2rem;
-    border: 0;
-    font-size: 14px;
+
+    margin-top: 1rem;
+
+    font-size: 0.9rem;
     text-decoration: underline;
     color: #464646;
+
 }
 
 #login-forgotpassword:hover {
@@ -100,60 +137,79 @@ html, body {
 }
 
 #login-register {
-    margin: 2rem 2rem 1rem 2rem;
-    height: 3rem;
-    background-color: white;
-    color: #1E1E1E;
-    font-size: 20;
-    font-weight: bold;
-    border: solid black 2px;
-    border-radius: 5px;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
+
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+
+    border: solid black 2px;
+    
     text-decoration: none;
-    transition: 0.1s;
+    color: #1E1E1E;
+    background-color: white;
+
 }
 
 #login-register:hover {
+    
     cursor: pointer;
-    border-color: #404040;
     color: #404040;
+    border-color: #404040;
+
 }
 
 @media (max-width: 1200px) {
+    
     .banner-logo {
         max-width: 50%;
     }
+
     .form {
-        margin: 2rem 1.5rem 0rem 1.5rem;
+        margin: 2rem 2rem 0rem 2rem;
     }
+
 }
 
-@media (max-width: 1080px){
+@media (max-width: 1080px) {
+    
     .banner-logo {
         max-width: 90%;
-        box-shadow: 0px 8px 20px rgba(167, 167, 167, 0.279);
     }
+
     .content {
         flex-wrap: wrap;
-        width: 100%;
-        margin: 0;
     }
+
 }
 
-@media (max-width: 925px){
+@media (max-width: 940px) {
+    
     body {
         background-color: white;
     }
+
+    .banner-logo {
+        box-shadow: 0px 8px 20px rgba(167, 167, 167, 0.279);
+    }
+
+    .content {
+        width: 100%;
+    }
+
+
 }
 
-@media (max-width: 600px){
+@media (max-width: 600px) {
+    
     .banner-logo {
         max-width: 80%;
     }
+
     .content {
         padding-top: 2rem;
     }
+    
 }
