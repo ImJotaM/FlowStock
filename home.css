@@ -1,0 +1,13 @@
+body{
+
+    font-family: Arial, sans-serif;
+}
+.navbar-brand img{
+    margin-right: 10px;
+}
+.add button{
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+
+}
