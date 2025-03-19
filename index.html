@@ -8,22 +8,41 @@
 </head>
 <body>
     <div class="main-content">
+        
         <div class="information-container">
             <img class="logo" src="resources/img/3.png" alt="">
         </div>
-        <form class="form-container">
+
+        <form class="form-container" id="form-container-login">
             <h1 class="form-title">Bem-vindo ao FlowStock!</h1>
             <div class="form-login">
                 
                 <input class="text-input" type="text" placeholder="Digite seu e-mail">
                 <input class="text-input" type="password" placeholder="Digite sua senha">
                 
-                <a class="button-input" id="button-login" href="#">ENTRAR</a>
+                <a class="button-input" id="button-login" href="HTML/home.html">ENTRAR</a>
                 <a id="button-forgotpass">Esqueci minha senha</a>
                 <input class="button-input" id="button-go-register" type="button" value="CADASTRAR">
 
             </div>
         </form>
+
+        <form class="form-container" style="display: none;" id="form-container-register">
+            <h1 class="form-title">Junte-se a nós!</h1>
+            <div class="form-login">
+                
+                <input class="text-input" type="text" placeholder="Digite seu e-mail">
+                <input class="text-input" type="password" placeholder="Digite sua senha">
+                <input class="text-input" type="password" placeholder="Confirme sua senha">
+                
+                <a class="button-input" id="button-login" href="HTML/home.html">ENTRAR</a>
+                <a id="button-forgotpass">Esqueci minha senha</a>
+                <input class="button-input" id="button-go-register" type="button" value="CADASTRAR">
+
+            </div>
+        </form>
+
     </div>
+    <script src="JS/index.js"></script>
 </body>
 </html>
