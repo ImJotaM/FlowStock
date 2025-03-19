@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ's</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .faq-container {
+            max-width: 800px; 
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header .btn-voltar {
+            font-size: 16px;
+            color: #000000;
+            text-decoration: none;
+        }
+        .header .ajuda {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .accordion-button {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            background-color: #D9D9D9; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            margin-bottom: 5px; 
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: #D9D9D9; 
+            color: #333; 
+        }
+        .accordion-body {
+            font-size: 16px;
+            color: #666;
+            background-color: #fff; 
+            border: 1px solid #ccc; 
+            border-top: none; 
+            border-radius: 0 0 4px 4px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="faq-container">
+       
+        <div class="header">
+            <a href="#" class="btn-voltar">
+                <i class="bi bi-chevron-left"></i>
+                Voltar
+            </a>
+            
+            <div class="ajuda">Ajuda</div>
+        </div>
+
+        <h2 class="text-center mb-4">FAQ's</h2>
+        <div class="accordion" id="faqAccordion">
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Como faço para adicionar um item ao estoque?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Para fazer isso, selecione o estoque desejado e localize o botão com o ícone de ‘+’. Ao clicar nele, o item será adicionado automaticamente ao estoque.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Como faço para editar um item do estoque?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Para editar um item do estoque, primeiro localize o item desejado. Em seguida, clique no item para abrir o menu de edição. Nesse menu, você pode renomear o item, excluí-lo ou alterar sua quantidade.
+                    </div>
+                </div>
+            </div>
+           
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Como faço para excluir um estoque?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Para excluir um estoque, localize-o na tela inicial. Na lateral, clique no botão com o ícone de lixeira . Ao confirmar a exclusão, o estoque será removido.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Como faço para gerar a lista pronta para minha compra?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Para gerar a lista pronta para sua compra, selecione o estoque desejado. Em seguida, localize o botão 'Imprimir' na parte inferior da tela. Ao clicar, um arquivo PDF será gerado automaticamente.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                        Como faço para editar dados da minha conta?
+                    </button>
+                </h2>
+                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Para editar os dados da sua conta, vá até a tela inicial e localize o ícone de três tracinhos (☰) no canto superior direito. Clique nele para abrir o menu lateral e selecione a opção 'Conta'. Nessa seção, você poderá alterar seu nome, e-mail, senha ou até mesmo excluir sua conta.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
