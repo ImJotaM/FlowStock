@@ -1,0 +1,108 @@
+section {
+    display: flex; 
+    align-items: center;
+    padding: 5px;
+    border: 1px solid black;
+}
+
+h1 {
+    text-align: center;
+    font-size: 50px;
+    margin: auto;
+    font-family: Alata;
+}
+
+span {
+    text-align: left;
+    font-size: 30px;
+    font-family: Inter;
+}
+
+body {
+    background-color: white;
+}
+
+.icon-voltar {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.icon-perfil {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: flex-end; 
+    align-items: flex-end;
+}
+
+.btn-imprimir {
+    border-radius: 10px;
+    padding: 10px 30px;
+    border: 2px solid black; 
+    font-size: 20px;
+    font-family: Alata; 
+    font-weight: bold;
+    cursor: pointer;
+    align-items: flex-end;
+    justify-content: flex-end;
+    position: absolute;
+    right: 20px; 
+    bottom: 20px; 
+}
+
+.icon-container {
+    bottom: 20px;
+    left: 50%; 
+    transform: translateX(-50%); 
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+}
+
+.sec1 {
+    width: auto;
+    min-height: 100vh;
+    background-color: lightgray;
+    padding-top: 40px;
+    display: flex;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 42px; 
+    align-content: flex-start;
+    align-items: center; 
+    justify-content: center;
+    border: 1px solid black;
+    position: relative; 
+}
+
+.opcao {
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    background-color: #f0f0f0;
+    padding: 5px;
+    border: 2px solid black;
+    border-radius: 5px;
+    min-width: 400px;
+    height: 70px;
+    gap: 10px;
+    z-index: 2;
+}
+
+.opcao img {
+    display: inline-block;
+    margin: 0; 
+    cursor: pointer;
+}
+
+.custom1 {
+    margin: 20px;
+}
+
+.custom2 {
+    margin-left: 120px;
+}
