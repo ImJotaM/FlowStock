@@ -2,212 +2,294 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../CSS/estoque.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>Estoque #1</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estoque #1</title>
 
-    <style>
-        section {
-            display: flex;
-            align-items: center;
-            border: 1px solid black;
-        }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
 
-        h1 {
-            text-align: center;
-            font-size: 3.125rem;
-            margin: auto;
-            font-family: Alata;
-        }
+  <style>
+    nav.topbar {
+     width: 100%;
+     background-color: white;
+     padding-left: 1rem;
+     padding-right: 1rem;
+     border: 1px solid black;
+     border-top: none;
+    }
 
-        span {
-            text-align: left;
-            font-size: 1.875rem;
-            font-family: Inter;
-        }
+    nav.topbar .container-fluid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
 
-        body {
-            background-color: white;
-        }
+    button.menu-icon {
+      font-size: 2.5rem;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: black;
+    }
 
-        .icon-perfil {
-            margin-right: 1.25rem;
-            cursor: pointer;
-        }
+    a.logo-link img {
+      width: 3.125rem;
+      height: auto;
+    }
 
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 1rem 2rem;
-        }
+    .conta {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Inter, sans-serif;
+    }
 
-        .header-container span,
-        .header-container h1 {
-            margin: 0;
-        }
+    .user-icon {
+      width: 3rem;
+      height: 3rem;
+      font-size: 3rem;
+      display: flex;
+      cursor: pointer;
+      color: black;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
 
-        .header-links {
-            display: flex;
-            gap: 5rem;  
-            color: #000;
-        }
+    .user-icon:hover{
+      color: black;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+    }
 
-        .header-links span {
-            cursor: pointer;
-            font-size: 1.5rem;
-            font-weight: bold;
-            font-family: Inter;
-        }
+    section {
+      display: flex;
+      align-items: center;
+      border: 1px solid black;
+    }
 
-        .sec1 {
-            min-height: 100vh;
-            background-color: lightgray;
-            padding-top: 2.5rem;
-            flex-wrap: wrap;
-            gap: 2.625rem;
-            align-content: flex-start;
-            border: 1px solid black;
-        }
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-right: 350px;
+      font-family: Alata;
+    }
 
-        .opcao {
-            display: flex;
-            align-items: center;
-            background-color: #f0f0f0;
-            border: 0.125rem solid black;
-            border-radius: 0.3125rem;
-            min-width: 25rem;
-            height: 4.375rem;
-            margin-left: 1rem;
-        }
+    span {
+      text-align: left;
+      font-size: 1.875rem;
+      font-family: Inter;
+    }
 
-        .opcao img {
-            cursor: pointer;
-            margin-bottom: 0.3125rem;
-        }
+    body {
+      background-color: white;
+    }
 
-        .custom {
-            margin: auto;
-        }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 1rem 2rem;
+    }
 
-        .texts-container {
-            position: fixed;
-            left: 1.25rem;
-            bottom: 1.25rem;
-            display: flex;
-            gap: 1.25rem;
-        }
+    .header-container span,
+    .header-container h1 {
+      margin: 0;
+    }
 
-        .texts {
-            border-radius: 0.625rem;
-            border: 0.125rem solid black;
-            font-size: 1.25rem;
-            font-family: Alata;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0.625rem;
-            background-color: #f0f0f0;
-            text-align: center;
-        }
+    .header-links {
+      display: flex;
+      gap: 5rem;
+      color: #000;
+    }
 
-        .icon-container {
-            position: fixed;
-            right: 1.25rem;
-            bottom: 1.25rem;
-            cursor: pointer;
-        }
-    </style>
+    .header-links span {
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: bold;
+      font-family: Inter;
+    }
 
+    .sec1 {
+      min-height: 100vh;
+      background-color: white;
+      padding-top: 2.5rem;
+      flex-wrap: wrap;
+      gap: 2.625rem;
+      align-content: flex-start;
+      border: 1px solid black;
+      border-bottom: none;
+    }
+
+    .opcao {
+      display: flex;
+      align-items: center;
+      background-color: white;
+      border: 0.125rem solid black;
+      border-radius: 0.3125rem;
+      min-width: 25rem;
+      height: 4.375rem;
+      margin-left: 1rem;
+    }
+
+    .opcao img {
+      cursor: pointer;
+      margin-bottom: 0.3125rem;
+    }
+
+    .custom {
+      margin: auto;
+    }
+
+    .texts-container {
+      position: fixed;
+      left: 1.25rem;
+      bottom: 1.25rem;
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .texts {
+      border-radius: 0.625rem;
+      border: 0.125rem solid black;
+      font-size: 1.25rem;
+      font-family: Alata;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0.625rem;
+      background-color: white;
+      text-align: center;
+      width: 150px;
+    }
+
+    .icon-container {
+      width: 4.5rem;
+      height: 4.5rem;
+      font-size: 4.5rem;
+      display: flex;
+      cursor: pointer;
+      color: black;
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      align-items: center;   
+      justify-content: center; 
+      border-radius: 50%;      
+      background-color: transparent; 
+      transition: background-color 0.3s ease;
+      box-sizing: border-box;  
+    }
+
+    .icon-container:hover{
+      color: black;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+    }
+
+    .custom:hover,
+    .menu-icon:hover,
+    .texts:hover {
+      color: black;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 0.625rem;
+      transition: background-color 0.3s ease;
+    }
+  </style>
 </head>
 
 <body>
 
-    <section>
-        <div class="header-container">
-            <h1>Estoque #1</h1>
+  <nav class="topbar" aria-label="Barra superior">
+    <div class="container-fluid">
+      <button class="menu-icon" title="Menu" aria-label="Menu">
+        <i class="bi bi-list"></i>
+      </button>
 
-            <div class="header-links">
-                <span>FAQs</span>
-                <span>Contate-nos</span>
-                <span>Sobre nós</span>
-            </div>
+      <a class="logo-link" href="#">
+        <img src="../resources/img/Brand-Light.jpg" alt="Logo FlowStock" width="200" />
+      </a>
 
-            <div class="icon-perfil">
-                <i class="bi bi-person-circle" style="font-size: 3rem;" title="Perfil"></i>
-            </div>
-        </div>
-    </section>
+      <div style="flex-grow:1"></div>
 
-    <section class="sec1">
+      <span>
+        <h1>Estoque #1</h1>
+      </span>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #1</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+      <div class="conta">
+        <span style="font-size: 15px;">João Marcos</span>
+        <i class="bi bi-person-circle user-icon" title="Perfil do Usuário"></i>
+      </div>
+    </div>
+  </nav>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #2</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+  <section class="sec1">
+    
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #1</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #3</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #2</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #4</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #3</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #5</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #4</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="opcao">
-            <div class="custom">
-                <span>Item #6</span>
-                <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
-            </div>
-            <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
-        </div>
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #5</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="texts-container">
-            <p class="texts">Histórico</p>
-            <p class="texts">Imprimir</p>
-        </div>
+    <div class="opcao">
+      <div class="custom">
+        <span>Item #6</span>
+        <span><img src="https://www.svgrepo.com/show/325130/edit-pencil.svg" title="Editar" height="30px" width="30px"></span>
+      </div>
+      <span class="custom" style="cursor: pointer;" title="Quantidade">0/0</span>
+    </div>
 
-        <div class="icon-container">
-            <i class="bi bi-plus-circle" style="font-size: 4rem;" title="Adicionar"></i>
-        </div>
-    </section>
+    <div class="texts-container">
+      <p class="texts">Histórico</p>
+      <p class="texts">Imprimir</p>
+    </div>
+
+    <div class="icon-container">
+      <i class="bi bi-plus-circle" title="Adicionar"></i>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 </body>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 </html>
