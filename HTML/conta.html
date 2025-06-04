@@ -1,139 +1,128 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conta</title>
+    <title>Perfis Logados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #ffffff; 
             padding: 20px;
+            font-family: Arial, sans-serif;
         }
-        .conta-container {
-            max-width: 800px; 
+
+        .profile-container {
+            max-width: 500px;
             margin: 0 auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            background-color: #ffffff; 
+            border-radius: 12px;
+            border: 2px solid #000000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            padding: 25px;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .header .btn-voltar {
             font-size: 16px;
-            color: #000000;
+            color: #000000; 
             text-decoration: none;
         }
-        .header .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
+
+        .header .btn-voltar:hover {
+            text-decoration: underline;
         }
-        .opcao-conta {
+
+        .header .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .profile-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .profile-list li {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background-color: #D6D6D6; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            margin-bottom: 10px; 
+            background-color: #f8f9fa; 
+            border: 1px solid #000000; 
+            border-radius: 8px;
+            margin-bottom: 12px;
             font-size: 16px;
-            color: #333;
-        }
-        .opcao-conta:last-child {
-            margin-bottom: 0; 
-        }
-        .opcao-conta:hover {
-            background-color: #c1c1c1; 
+            color: #000000; 
             cursor: pointer;
         }
-        .titulo-opcao {
-            font-size: 20px; 
+
+        .profile-list li:hover {
+            background-color: lightgray; 
+            color: black;
+        }
+
+        .profile-list li i {
+            margin-right: 12px;
+            color: #000000; 
+            font-size: 24px;
+        }
+
+        .add-user {
+            color: #ffffff; 
+            border: 2px dashed #000000;
             font-weight: bold;
-            margin-bottom: 5px;
+            justify-content: center;
         }
-        .titulo-opcao i {
-            font-size: 28px; 
-            margin-right: 10px; 
-        }
-        .btn-redefinir {
-            background-color: #6c757d; 
-            color: #fff; 
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .btn-redefinir:hover {
-            background-color: #5a6268; 
-        }
-        .btn-excluir-conta {
-            color: #333; 
-            text-decoration: none;
-            font-size: 16px;
-            margin-top: 20px;
-            display: block;
-            text-align: center;
-        }
-        .btn-excluir-conta:hover {
-            text-decoration: underline; 
+
+        .add-user:hover {
+            background-color: lightgray; 
         }
     </style>
 </head>
 <body>
-    <div class="conta-container">
-        
+    <div class="profile-container">
+
         <div class="header">
-            <a href="perfis.html" class="btn-voltar">
+            <a href="ajuda.html" class="btn-voltar">
                 <i class="bi bi-chevron-left"></i>
                 Voltar 
             </a>
-            <div class="title">Conta</div>
+            <div class="title">Perfis Logados</div>
         </div>
 
-      
-        <div class="opcao-conta">
-            <div>
-                <div class="titulo-opcao">
-                    <i class="bi bi-person-circle"></i> 
-                    Alterar nome
-                </div>
-                <p>João Marcos</p>
-            </div>
-            <button class="btn-redefinir">Redefinir</button>
-        </div>
+        <h3 class="mb-4" style="color: #000000;">Quem irá usar?</h3>
 
-        <div class="opcao-conta">
-            <div>
-                <div class="titulo-opcao">
-                    <i class="bi bi-envelope"></i> 
-                    Alterar e-mail
-                </div>
-                <p>joao.marcos@gmail.com</p>
-            </div>
-            <button class="btn-redefinir">Redefinir</button>
-        </div>
-
-        <div class="opcao-conta">
-            <div>
-                <div class="titulo-opcao">
-                    <i class="bi bi-lock"></i> 
-                    Alterar senha
-                </div>
-                <p>………</p>
-            </div>
-            <button class="btn-redefinir">Redefinir</button>
-        </div>
-
-       
-        <a href="#" class="btn-excluir-conta">EXCLUIR CONTA</a>
+        <ul class="profile-list">
+            <li>
+                <i class="bi bi-person-circle"></i> 
+                joao.marcos@gmail.com
+            </li>
+            <li>
+                <i class="bi bi-person-circle"></i>
+                marianna.haika@gmail.com
+            </li>
+            <li>
+                <i class="bi bi-person-circle"></i>
+                daniel.miranda@gmail.com
+            </li>
+            <li>
+                <i class="bi bi-person-circle"></i>
+                jose.alfredo@gmail.com
+            </li>
+            
+            <li class="add-user">
+                <i class="bi bi-plus-circle"></i> 
+                Adicionar usuário
+            </li>
+        </ul>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

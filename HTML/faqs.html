@@ -8,71 +8,100 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #fff;
+            color: #000;
+            font-family: Arial, sans-serif;
             padding: 20px;
         }
+
         .faq-container {
-            max-width: 800px; 
+            max-width: 800px;
             margin: 0 auto;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #000;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             padding: 20px;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .header .btn-voltar {
             font-size: 16px;
-            color: #000000;
+            color: #000;
             text-decoration: none;
         }
+
         .header .ajuda {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            color: #333;
+            color: #000;
         }
+
+        h2 {
+            color: #000;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .accordion {
+            margin-top: 20px;
+        }
+
+        .accordion-item {
+            margin-bottom: 20px;
+            border: 1px solid #000;
+            border-radius: 8px;
+        }
+
+        .accordion-item:first-child {
+            border-top: none;
+        }
+
         .accordion-button {
             font-size: 18px;
-            color: #333;
+            color: #000;
             font-weight: bold;
-            background-color: #D9D9D9; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            margin-bottom: 5px; 
+            background-color: #fff;
+            border-radius: 8px;
         }
+
         .accordion-button:not(.collapsed) {
-            background-color: #D9D9D9; 
-            color: #333; 
+            background-color: #f9f9f9;
         }
+
+        .accordion-header {
+            border-top: 1px solid #000;
+            border-radius: 8px;
+        }
+
         .accordion-body {
             font-size: 16px;
-            color: #666;
-            background-color: #fff; 
-            border: 1px solid #ccc; 
-            border-top: none; 
-            border-radius: 0 0 4px 4px; 
+            color: #000;
+            background-color: #fff;
+            border-top: 1px solid #000;
+            border-radius: 0 0 8px 8px;
         }
     </style>
 </head>
 <body>
     <div class="faq-container">
-       
         <div class="header">
             <a href="#" class="btn-voltar">
                 <i class="bi bi-chevron-left"></i>
                 Voltar
             </a>
-            
             <div class="ajuda">Ajuda</div>
         </div>
-
-        <h2 class="text-center mb-4">FAQ's</h2>
+        <h2>FAQ's</h2>
         <div class="accordion" id="faqAccordion">
-            
+           
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -85,7 +114,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -98,7 +127,7 @@
                     </div>
                 </div>
             </div>
-           
+            
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
@@ -115,12 +144,12 @@
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingFour">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        Como faço para gerar a lista pronta para minha compra?
+                        Como gerar uma lista?
                     </button>
                 </h2>
                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        Para gerar a lista pronta para sua compra, selecione o estoque desejado. Em seguida, localize o botão 'Imprimir' na parte inferior da tela. Ao clicar, um arquivo PDF será gerado automaticamente.
+                        Para gerar uma lista, acesse a seção de relatórios e selecione a opção “Gerar Lista”. Escolha o formato desejado e confirme a geração.
                     </div>
                 </div>
             </div>
@@ -128,18 +157,17 @@
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingFive">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                        Como faço para editar dados da minha conta?
+                        Como editar os dados da conta?
                     </button>
                 </h2>
                 <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        Para editar os dados da sua conta, vá até a tela inicial e localize o ícone de três tracinhos (☰) no canto superior direito. Clique nele para abrir o menu lateral e selecione a opção 'Conta'. Nessa seção, você poderá alterar seu nome, e-mail, senha ou até mesmo excluir sua conta.
+                        Para editar os dados da conta, vá até as configurações do perfil, clique em “Editar Dados” e atualize as informações desejadas.
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
