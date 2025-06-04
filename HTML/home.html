@@ -12,10 +12,8 @@
 
   <style>
      nav.navbar {
-      width: 100%;
       background-color: white;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding: 0.001rem;
       border: 1px solid black;
       border-top: none;
     }
@@ -41,15 +39,14 @@
     }
 
     .form-pesquisa {
-      max-width: 43.75rem;
-      width: 80%;
+      width: 35%;
       background-color: white;
       border: 1px solid black;
-      padding: 0.25rem 0.75rem;
-      border-radius: 0.375rem;
+      padding: 0.05rem 0.5rem;
+      border-radius: 1rem;
       display: flex;
       align-items: center;
-      margin-right: 50px;
+      margin-right: auto;
     }
 
     .form-pesquisa input {
@@ -108,7 +105,7 @@
       border: 0.125rem solid black;
       cursor: pointer;
       height: 6.25rem;
-      width: 50rem;
+      width: 40rem;
     }
 
     .item-estoque .acoes {
@@ -127,9 +124,9 @@
     }
 
     .botao-adicionar {
-      width: 4.5rem;
-      height: 4.5rem;
-      font-size: 4.5rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      font-size: 3.5rem;
       display: flex;
       cursor: pointer;
       color: black;
@@ -168,23 +165,6 @@
       background-color: rgba(0, 0, 0, 0.1);
       border-radius: 10%;
     }
-
-    .botao-adicionar:focus,
-    .btn-pesquisar:focus,
-    .botao-editar:focus,
-    .botao-excluir:focus {
-      box-shadow: none;
-    }
-
-    .botao-adicionar:active,
-    .btn-pesquisar:active,
-    .botao-editar:active,
-    .botao-excluir:active {
-      background-color: transparent;
-      border: none;
-      color: black;
-      box-shadow: none;
-    }
   </style>
 </head>
 
@@ -197,7 +177,7 @@
         </button>
 
         <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-          <img src="../resources/img/Brand-Light.jpg" alt="Logo FlowStock" width="200" />
+          <img src="../resources/img/Brand-Light.jpg" alt="Logo FlowStock" width="200" style="margin-right: 250px;"/>
         </a>
 
         <form class="form-pesquisa d-flex align-items-center" role="search">
@@ -208,7 +188,7 @@
         </form>
 
         <div class="conta">
-          <span>João Marcos</span>
+          <span>Admin</span>
           <i class="bi bi-person-circle user-icon" title="Perfil"></i>
         </div>
       </div>
