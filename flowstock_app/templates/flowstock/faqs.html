@@ -93,10 +93,10 @@
 <body>
     <div class="faq-container">
         <div class="header">
-            <a href="#" class="btn-voltar">
+            <div onclick="window.location.href='{% url 'home' %}'" style="cursor:pointer">
                 <i class="bi bi-chevron-left"></i>
-                Voltar
-            </a>
+                <span>Voltar</span>
+            </div>
             <div class="ajuda">Ajuda</div>
         </div>
         <h2>FAQ's</h2>

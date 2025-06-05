@@ -1,0 +1,90 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Estoque #1</title>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+</head>
+<body>
+
+	<nav class="navbar bg-white px-2 border-bottom border-dark">
+		<div class="container-fluid">
+
+			<div class="d-flex align-items-center">
+				<i class="bi bi-chevron-left fs-3" onclick="window.location.href='{% url 'home' %}'" style="cursor: pointer;"></i>
+				<a class="navbar-brand p-0" href="#">
+					<img src="{% static 'flowstock/resources/img/logo.jpg' %}" alt="Logo" style="max-height: 60px; width: auto;">
+				</a>
+			</div>
+
+			<div class="d-flex flex-grow-1 justify-content-center">
+				<h1>{{ stock.name  }}</h1>
+			</div>
+
+			<div class="d-flex align-items-center" onclick="window.location.href='{% url 'account_detail' %}'" style="cursor:pointer">
+				<span class="fw-bold me-2">{{ user.username }}</span>
+				<i class="bi bi-person-circle fs-1"></i>
+			</div>
+		</div>
+
+	</nav>
+
+	<div class="container-fluid py-4">
+		<ul class="list-unstyled row row-cols-1 row-cols-md-3 g-4">
+			{% for item in items %}
+			<li class="col">
+				<div class="list-group-item border border-black h-100 border-2" style="border-radius: 5px">
+					<div class="d-flex justify-content-between align-items-center py-2 px-3">
+						<div class="d-flex align-items-center">
+							<span class="me-2 fw-bold">{{ item.name }}</span>
+							<button class="btn btn-link text-dark p-0" title="Editar">
+								<i class="bi bi-pencil fs-5"></i>
+							</button>
+						</div>
+						<div class="d-flex align-items-center">
+							<span class="fs-4 me-3">{{ item.quantity_available  }} / {{ item.quantity_needed  }}</span>
+							<form method="post" action="{% url 'stock_detail' stock.id  %}" style="display: inline;">
+								{% csrf_token %}
+								<input type="hidden" name="delete_id" value="{{ item.id  }}">
+								<button type="submit" class="btn btn-link text-dark p-0" title="Excluir">
+									<i class="bi bi-trash fs-4"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</li>
+			{% endfor %}
+			
+			<li class="col">
+				<div class="list-group-item border border-black h-100 d-flex align-items-center justify-content-center border-2" style="border-radius: 5px">
+					<form method="post" action="{% url 'stock_detail' stock.id %}">
+						{% csrf_token %}
+						<input type="hidden" name="create" value="true">
+						<button type="submit" class="btn p-0">
+							<i class="bi bi-plus-circle fs-4"></i>
+						</button>
+					</form>
+				</div>
+			</li>
+		</ul>
+	</div>
+
+	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
+		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
+		<button class="btn border border-black border-2 text-black fs-5">Imprimir</button>
+    </div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
