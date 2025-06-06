@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -19,49 +21,114 @@
         </div>
 
         <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="d-flex align-items-center fs-4 fw-bold mb-1">
-                        <i class="bi bi-person-circle me-3"></i> 
-                        Alterar nome
+            <div id="name-view">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center fs-4 fw-bold mb-1">
+                            <i class="bi bi-person-circle me-3"></i> 
+                            Nome
+                        </div>
+                        <p class="mb-0" id="current-name">{{ user.username }}</p>
                     </div>
-                    <p class="mb-0">{{ user.username }}</p>
+                    <button class="btn btn-secondary btn-sm" id="edit-name-btn">Redefinir</button>
                 </div>
-                <button class="btn btn-secondary btn-sm">Redefinir</button>
             </div>
+            
+            <form method="post" action="{% url 'account_detail' %}" class="d-none" id="name-edit-form">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="name">
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control me-3" name="new_value" value="{{ user.username }}" style="min-width: 200px;">
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-sm border border-black border-2 me-2">
+                            <i class="bi bi-check fs-5"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm border border-black border-2" id="cancel-name-edit">
+                            <i class="bi bi-x fs-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="d-flex align-items-center fs-4 fw-bold mb-1">
-                        <i class="bi bi-envelope me-3"></i> 
-                        Alterar e-mail
+            <div id="email-view">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center fs-4 fw-bold mb-1">
+                            <i class="bi bi-envelope me-3"></i> 
+                            E-mail
+                        </div>
+                        <p class="mb-0" id="current-email">{{ user.email }}</p>
                     </div>
-                    <p class="mb-0">{{ user.email }}</p>
+                    <button class="btn btn-secondary btn-sm" id="edit-email-btn">Redefinir</button>
                 </div>
-                <button class="btn btn-secondary btn-sm">Redefinir</button>
             </div>
+            
+            <form method="post" action="{% url 'account_detail' %}" class="d-none" id="email-edit-form">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="email">
+                <div class="d-flex align-items-center">
+                    <input type="email" class="form-control me-3" name="new_value" value="{{ user.email }}" style="min-width: 200px;">
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-sm border border-black border-2 me-2">
+                            <i class="bi bi-check fs-5"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm border border-black border-2" id="cancel-email-edit">
+                            <i class="bi bi-x fs-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded p-3 mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="d-flex align-items-center fs-4 fw-bold mb-1">
-                        <i class="bi bi-lock me-3"></i> 
-                        Alterar senha
+            <div id="password-view">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="d-flex align-items-center fs-4 fw-bold mb-1">
+                            <i class="bi bi-lock me-3"></i> 
+                            Senha
+                        </div>
+                        <p class="mb-0">………</p>
                     </div>
-                    <p class="mb-0">………</p>
+                    <button class="btn btn-secondary btn-sm" id="edit-password-btn">Redefinir</button>
                 </div>
-                <button class="btn btn-secondary btn-sm">Redefinir</button>
             </div>
+            
+            <form method="post" action="{% url 'account_detail' %}" class="d-none" id="password-edit-form">
+                {% csrf_token %}
+                <input type="hidden" name="field" value="password">
+                <div class="d-flex align-items-center">
+                    <input type="password" class="form-control me-3" name="new_value" placeholder="Nova senha" style="min-width: 200px;">
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-sm border border-black border-2 me-2">
+                            <i class="bi bi-check fs-5"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm border border-black border-2" id="cancel-password-edit">
+                            <i class="bi bi-x fs-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
-        <div class="d-flex flex-column mt-4">
-            <span onclick="window.location.href='{% url 'profiles' %}'" style="cursor: pointer;" class="text-dark text-decoration-underline text-center mb-2">MUDAR DE USÚARIO</span>
-            <a href="#" class="text-dark text-center">EXCLUIR CONTA</a>
-        </div>
+        <div class="d-flex flex-column align-items-center mt-4">
+			<span onclick="window.location.href='{% url 'profiles' %}'" 
+				class="text-dark text-decoration-underline mb-2" style="cursor: pointer;">
+				MUDAR DE USÚARIO
+			</span>
+			<form method="post" action="{% url 'account_detail' %}" class="text-center">
+				{% csrf_token %}
+				<input type="hidden" name="delete_id" value="{{ user.id }}">
+				<button type="submit" class="btn btn-link text-dark p-0 text-decoration-underline" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir sua conta?');" style="cursor: pointer;">
+					EXCLUIR CONTA
+				</button>
+			</form>
+		</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src={% static 'flowstock/JS/conta/update_account.js' %}></script>
 </body>
+</html>

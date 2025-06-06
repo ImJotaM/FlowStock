@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash, logout
 from .forms import SignUpForm, LoginForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Stock, Item
+from django.contrib.auth.models import User
 
 def root_redirect(request):
 	if request.user.is_authenticated:
@@ -42,11 +43,10 @@ def login(request):
 @login_required
 def home(request):
 	if request.method == 'POST':
-        
 		if 'create' in request.POST:
 			count = Stock.objects.filter(user=request.user).count()
 			Stock.objects.create(user=request.user, name=f"Estoque #{count + 1}")
-		elif 'update_id':
+		elif 'update_id' in request.POST:
 			stock_id = request.POST.get('update_id')
 			new_name = request.POST.get('new_name')
 			stock = Stock.objects.filter(id=stock_id, user=request.user).first()
@@ -64,6 +64,50 @@ def home(request):
 
 @login_required
 def account_detail(request):
+    
+	if request.method == 'POST':
+		if 'delete_id' in request.POST:
+			user_id = request.POST.get('delete_id')
+			if request.user.id == int(user_id):
+       
+				logout(request)
+				User.objects.filter(id=user_id).delete()
+				messages.success(request, 'Sua conta foi excluída com sucesso.')
+				return redirect('home')
+			else:
+				messages.error(request, 'Não foi possível excluir a conta.')
+				return redirect('account_detail')
+
+		field = request.POST.get('field')
+		new_value = request.POST.get('new_value')
+        
+		if field == 'name':
+			if new_value and len(new_value) > 0:
+				request.user.username = new_value
+				request.user.save()
+				messages.success(request, 'Nome atualizado com sucesso!')
+			else:
+				messages.error(request, 'O nome não pode estar vazio')
+				
+		elif field == 'email':
+			if new_value and len(new_value) > 0:
+				request.user.email = new_value
+				request.user.save()
+				messages.success(request, 'E-mail atualizado com sucesso!')
+			else:
+				messages.error(request, 'O e-mail não pode estar vazio')
+			
+		elif field == 'password':
+			if new_value and len(new_value) >= 8:
+				request.user.set_password(new_value)
+				request.user.save()
+				update_session_auth_hash(request, request.user)
+				messages.success(request, 'Senha alterada com sucesso!')
+			else:
+				messages.error(request, 'A senha deve ter pelo menos 8 caracteres')
+			
+		return redirect('account_detail')
+  
 	return render(request, 'flowstock/conta.html')
 
 @login_required
