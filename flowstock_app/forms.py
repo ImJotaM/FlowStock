@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from .models import Stock
 
 class SignUpForm(UserCreationForm):
     
@@ -50,4 +51,16 @@ class LoginForm(AuthenticationForm):
                 "os campos diferenciam maiúsculas e minúsculas."
             ),
             'inactive': _("Esta conta está inativa."),
+        }
+
+
+class StockForm(forms.ModelForm):
+    class Meta:
+        model = Stock
+        fields = ['name']
+        labels = {
+            'name': 'Nome do Estoque'
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
         }

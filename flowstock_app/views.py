@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash, logout
 from .forms import SignUpForm, LoginForm
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from .models import Stock, Item
+from .forms import StockForm
 from django.contrib.auth.models import User
+
 
 def root_redirect(request):
 	if request.user.is_authenticated:
@@ -41,26 +44,61 @@ def login(request):
 	return render(request, 'flowstock/login.html', {'form': form})
 
 @login_required
-def home(request):
-	if request.method == 'POST':
-		if 'create' in request.POST:
-			count = Stock.objects.filter(user=request.user).count()
-			Stock.objects.create(user=request.user, name=f"Estoque #{count + 1}")
-		elif 'update_id' in request.POST:
-			stock_id = request.POST.get('update_id')
-			new_name = request.POST.get('new_name')
-			stock = Stock.objects.filter(id=stock_id, user=request.user).first()
-			if stock:
-				stock.name = new_name
-				stock.save()
-		elif 'delete_id' in request.POST:
-			stock_id = request.POST.get('delete_id')
-			Stock.objects.filter(id=stock_id, user=request.user).delete()
-            
-		return redirect('home')
+def stock_list(request):
+    search_query = request.GET.get('search', '')
     
-	stocks = Stock.objects.filter(user=request.user).order_by('name')
-	return render(request, 'flowstock/home.html', {'stocks': stocks})
+    stock_queryset = Stock.objects.filter(user=request.user).order_by('name')
+
+    if search_query:
+        stock_queryset = stock_queryset.filter(name__icontains=search_query)
+
+    paginator = Paginator(stock_queryset, 8)
+    page_number = request.GET.get('page')
+    stocks_page = paginator.get_page(page_number)
+
+    return render(request, 'flowstock/home.html', {
+        'stocks': stocks_page,
+    })
+
+
+@login_required
+def create_stock(request):
+    if request.method == 'POST':
+        form = StockForm(request.POST)
+        if form.is_valid():
+            stock = form.save(commit=False)
+            stock.user = request.user
+            stock.save()
+            messages.success(request, 'Estoque criado com sucesso!')
+            return render(request, 'flowstock/estoque.html', {'stock': stock,'items': stock.items.all()})
+    else:
+        form = StockForm()
+    
+    return render(request, 'flowstock/estoque_form.html', {'form': form, 'title': 'Criar Novo Estoque'})
+
+
+@login_required
+def update_stock(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
+    
+    if request.method == 'POST':
+        form = StockForm(request.POST, instance=stock)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Estoque atualizado com sucesso!')
+            return redirect('home')
+    else:
+        form = StockForm(instance=stock)
+
+    return render(request, 'flowstock/estoque_form.html', {'form': form, 'title': f'Editando "{stock.name}"'})
+
+@login_required
+def delete_stock(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
+    if request.method == 'POST':
+        stock.delete()
+        messages.info(request, 'Estoque excluído com sucesso!')
+    return redirect('home')
 
 @login_required
 def account_detail(request):
