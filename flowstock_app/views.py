@@ -90,12 +90,14 @@ def account_detail(request):
 				messages.error(request, 'O nome não pode estar vazio')
 				
 		elif field == 'email':
-			if new_value and len(new_value) > 0:
-				request.user.email = new_value
-				request.user.save()
-				messages.success(request, 'E-mail atualizado com sucesso!')
+			if not new_value or not new_value.strip():
+				messages.error(request, 'O e-mail não pode estar vazio', extra_tags='email_change')
+			elif User.objects.exclude(pk=request.user.pk).filter(email=new_value.strip()).exists():
+				messages.error(request, 'Este e-mail já está em uso por outra conta', extra_tags='email_change')
 			else:
-				messages.error(request, 'O e-mail não pode estar vazio')
+				request.user.email = new_value.strip()
+				request.user.save()
+				messages.success(request, 'E-mail atualizado com sucesso!', extra_tags='email_change')
 			
 		elif field == 'password':
 			if new_value and len(new_value) >= 8:
