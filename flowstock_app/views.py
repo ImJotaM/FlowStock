@@ -171,13 +171,24 @@ def stock_detail(request, stock_id):
 			return redirect('stock_detail', stock_id=stock.id)
 		elif 'update_name' in request.POST:
 			item_id = request.POST.get('update_name')
-			Item.objects.filter(id=item_id, stock=stock).update()
+			item = Item.objects.filter(id=item_id, stock=stock).first()
+			if item:
+				item.name = request.POST.get('name', item.name)
+				try:
+					item.quantity_available = int(request.POST.get('quantity_available', item.quantity_available))
+				except (ValueError, TypeError):
+					pass
+				try:
+					item.quantity_needed = int(request.POST.get('quantity_needed', item.quantity_needed))
+				except (ValueError, TypeError):
+					pass
+				item.save()
 			return redirect('stock_detail', stock_id=stock.id)
 		elif 'delete_id' in request.POST:
 			item_id = request.POST.get('delete_id')
 			Item.objects.filter(id=item_id, stock=stock).delete()
 			return redirect('stock_detail', stock_id=stock.id)
-    
+
 	return render(request, 'flowstock/estoque.html', {
         'stock': stock,
         'items': stock.items.all()
