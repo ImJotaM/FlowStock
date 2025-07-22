@@ -52,6 +52,35 @@
         </div>
 
         <div class="bg-secondary bg-opacity-10 border border-secondary border-opacity-25 rounded p-3 mb-3">
+
+			{% if messages %}
+				{% for message in messages %}
+					{% if 'redefining_email' in message.tags %}
+						
+						{% if 'error' in message.tags %}
+							{% with 'danger' as message_class %}
+								<div class="alert alert-{{ message_class }} alert-dismissible show mb-3 d-flex align-items-center justify-content-between p-2" role="alert">
+									<div class="ms-2">{{ message }}</div>
+									<button type="button" class="bg-transparent border-0 p-0 m-0 d-flex align-items-center me-2" data-bs-dismiss="alert" aria-label="Fechar">
+										<i class="bi bi-x-lg fs-5"></i>
+									</button>
+								</div>
+							{% endwith %}
+						{% else %}
+							{% with 'success' as message_class %}
+								<div class="alert alert-{{ message_class }} alert-dismissible show mb-3 d-flex align-items-center justify-content-between p-2" role="alert">
+									<div class="ms-2">{{ message }}</div>
+									<button type="button" class="bg-transparent border-0 p-0 m-0 d-flex align-items-center me-2" data-bs-dismiss="alert" aria-label="Fechar">
+										<i class="bi bi-x-lg fs-5"></i>
+									</button>
+								</div>
+							{% endwith %}
+						{% endif %}
+
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+
             <div id="email-view">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
