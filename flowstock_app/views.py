@@ -7,7 +7,17 @@ from django.contrib.auth.decorators import login_required
 from .models import Stock, Item
 from .forms import StockForm
 from django.contrib.auth.models import User
+from datetime import date
+from django.http import HttpResponse
+from django.contrib.staticfiles.finders import find
 
+
+# Imports do ReportLab
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image # NOVO - Image
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER, TA_LEFT # NOVO - TA_LEFT
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 def root_redirect(request):
 	if request.user.is_authenticated:
@@ -193,3 +203,80 @@ def stock_detail(request, stock_id):
         'stock': stock,
         'items': stock.items.all()
     })
+
+
+@login_required
+def generate_pdf_stock(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
+    items = stock.items.all().order_by('name')
+
+    response = HttpResponse(content_type='application/pdf')
+    filename = f"lista-compra-{stock.name.replace(' ', '-').lower()}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    doc = SimpleDocTemplate(response, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+    
+    story = []
+    styles = getSampleStyleSheet()
+
+    # --- ALTERADO: Alinhamento do Título e Data para a Esquerda ---
+    title_style = styles['h1']
+    title_style.alignment = TA_LEFT
+    story.append(Paragraph(f"Lista de compra - {stock.name}", title_style))
+    
+    date_str = date.today().strftime('%d/%m/%Y')
+    date_style = styles['Normal']
+    date_style.alignment = TA_LEFT
+    story.append(Paragraph(f"Data de geração: {date_str}", date_style))
+    
+    story.append(Spacer(1, 0.4*inch))
+
+    # --- Sem alterações na preparação dos dados da tabela ---
+    table_data = [
+        ['Nome do item', 'Quantidade\ndisponível', 'Quantidade\nmáxima', 'Quantidade\nFaltante']
+    ]
+    for item in items:
+        missing_quantity = item.quantity_needed - item.quantity_available
+        missing_display = str(missing_quantity) if missing_quantity > 0 else '-'
+        table_data.append([
+            item.name,
+            str(item.quantity_available),
+            str(item.quantity_needed),
+            missing_display
+        ])
+
+    pdf_table = Table(table_data)
+    
+    # --- ALTERADO: Novo estilo da tabela para combinar com a imagem ---
+    style = TableStyle([
+        # Estilos do cabeçalho
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#EEEEEE')),
+        ('TEXTCOLOR',(0,0),(-1,0),colors.black),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        
+        # Linhas horizontais
+        ('LINEBELOW', (0,0), (-1,0), 1, colors.black),
+        ('LINEBELOW', (0,1), (-1,-1), 0.5, colors.lightgrey),
+
+        # Padding (espaçamento interno)
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+    ])
+    
+    pdf_table.setStyle(style)
+    story.append(pdf_table)
+    
+    # --- NOVO: Adicionando o logo no final ---
+    story.append(Spacer(0.5, 0.5*inch))
+    
+    # Substitua 'images/seu_logo.png' pelo caminho correto dentro da sua pasta static
+    logo_path = find('flowstock/resources/img/logo.jpg') 
+    if logo_path:
+        logo = Image(logo_path, width=4*inch, height=1.5*inch) # Ajuste as dimensões
+        logo.hAlign = 'CENTER'
+        story.append(logo)
+
+    doc.build(story)
+    return response

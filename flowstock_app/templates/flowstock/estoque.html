@@ -105,7 +105,7 @@
 
 	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
 		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
-		<button class="btn border border-black border-2 text-black fs-5">Imprimir</button>
+		<a class="btn border border-black border-2 text-black fs-5" href="{% url 'generate-pdf-stock' stock.id %}">Imprimir</a>
     </div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
