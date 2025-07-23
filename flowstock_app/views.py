@@ -130,13 +130,17 @@ def account_detail(request):
 		new_value = request.POST.get('new_value')
         
 		if field == 'name':
-			if new_value and len(new_value) > 0:
-				request.user.username = new_value
-				request.user.save()
-				messages.success(request, 'Nome atualizado com sucesso!')
+			if not new_value or not new_value.strip():
+				messages.error(request, 'O nome não pode estar vazio', extra_tags='redefining_name')
+			elif new_value.strip() == request.user.username:
+				messages.error(request, 'Digite um nome diferente do atual', extra_tags='redefining_name')
+			elif User.objects.exclude(pk=request.user.pk).filter(username=new_value.strip()).exists():
+				messages.error(request, 'Este nome já está em uso por outro usuário', extra_tags='redefining_name')
 			else:
-				messages.error(request, 'O nome não pode estar vazio')
-				
+				request.user.username = new_value.strip()
+				request.user.save()
+				messages.success(request, 'Nome atualizado com sucesso!', extra_tags='redefining_name')
+       
 		elif field == 'email':
 			if not new_value or not new_value.strip():
 				messages.error(request, 'O e-mail não pode estar vazio', extra_tags='redefining_email')
