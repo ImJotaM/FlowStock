@@ -52,15 +52,3 @@ class LoginForm(AuthenticationForm):
             ),
             'inactive': _("Esta conta está inativa."),
         }
-
-
-class StockForm(forms.ModelForm):
-    class Meta:
-        model = Stock
-        fields = ['name']
-        labels = {
-            'name': 'Nome do Estoque'
-        }
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'})
-        }

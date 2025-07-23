@@ -5,17 +5,15 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from .models import Stock, Item
-from .forms import StockForm
 from django.contrib.auth.models import User
 from datetime import date
 from django.http import HttpResponse
 from django.contrib.staticfiles.finders import find
+from django.urls import reverse
 
-
-# Imports do ReportLab
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image # NOVO - Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.enums import TA_CENTER, TA_LEFT # NOVO - TA_LEFT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 
@@ -73,34 +71,18 @@ def stock_list(request):
 
 @login_required
 def create_stock(request):
-    if request.method == 'POST':
-        form = StockForm(request.POST)
-        if form.is_valid():
-            stock = form.save(commit=False)
-            stock.user = request.user
-            stock.save()
-            messages.success(request, 'Estoque criado com sucesso!')
-            return render(request, 'flowstock/estoque.html', {'stock': stock,'items': stock.items.all()})
-    else:
-        form = StockForm()
-    
-    return render(request, 'flowstock/estoque_form.html', {'form': form, 'title': 'Criar Novo Estoque'})
-
+	count = Stock.objects.filter(user=request.user).count()
+	stock = Stock.objects.create(user=request.user, name=f"Estoque #{count + 1}")
+	return redirect(f'{reverse("home")}?edit_id={stock.id}')
 
 @login_required
 def update_stock(request, stock_id):
-    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
-    
-    if request.method == 'POST':
-        form = StockForm(request.POST, instance=stock)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Estoque atualizado com sucesso!')
-            return redirect('home')
-    else:
-        form = StockForm(instance=stock)
-
-    return render(request, 'flowstock/estoque_form.html', {'form': form, 'title': f'Editando "{stock.name}"'})
+	new_name = request.POST.get('name')
+	stock = Stock.objects.filter(id=stock_id, user=request.user).first()
+	if stock:
+		stock.name = new_name
+		stock.save()
+	return redirect('home')
 
 @login_required
 def delete_stock(request, stock_id):
