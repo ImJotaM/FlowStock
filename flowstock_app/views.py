@@ -223,7 +223,6 @@ def generate_pdf_stock(request, stock_id):
     story = []
     styles = getSampleStyleSheet()
 
-    # --- ALTERADO: Alinhamento do Título e Data para a Esquerda ---
     title_style = styles['h1']
     title_style.alignment = TA_LEFT
     story.append(Paragraph(f"Lista de compra - {stock.name}", title_style))
@@ -235,7 +234,6 @@ def generate_pdf_stock(request, stock_id):
     
     story.append(Spacer(1, 0.4*inch))
 
-    # --- Sem alterações na preparação dos dados da tabela ---
     table_data = [
         ['Nome do item', 'Quantidade\ndisponível', 'Quantidade\nmáxima', 'Quantidade\nFaltante']
     ]
@@ -251,7 +249,6 @@ def generate_pdf_stock(request, stock_id):
 
     pdf_table = Table(table_data)
     
-    # --- ALTERADO: Novo estilo da tabela para combinar com a imagem ---
     style = TableStyle([
         # Estilos do cabeçalho
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#EEEEEE')),
@@ -272,13 +269,11 @@ def generate_pdf_stock(request, stock_id):
     pdf_table.setStyle(style)
     story.append(pdf_table)
     
-    # --- NOVO: Adicionando o logo no final ---
     story.append(Spacer(0.5, 0.5*inch))
     
-    # Substitua 'images/seu_logo.png' pelo caminho correto dentro da sua pasta static
     logo_path = find('flowstock/resources/img/logo.jpg') 
     if logo_path:
-        logo = Image(logo_path, width=4*inch, height=1.5*inch) # Ajuste as dimensões
+        logo = Image(logo_path, width=4*inch, height=1.5*inch)
         logo.hAlign = 'CENTER'
         story.append(logo)
 
