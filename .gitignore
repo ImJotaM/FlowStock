@@ -1,2 +1,13 @@
 **/__pycache__
 db.sqlite3
+
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Arquivos de ambiente
+.env
+*.env

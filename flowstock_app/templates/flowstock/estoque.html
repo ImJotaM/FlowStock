@@ -40,28 +40,53 @@
 	<div class="container-fluid py-4">
 		<ul class="list-unstyled row row-cols-1 row-cols-md-3 g-4">
 			{% for item in items %}
-			<li class="col">
-				<div class="list-group-item border border-black h-100 border-2" style="border-radius: 5px">
-					<div class="d-flex justify-content-between align-items-center py-2 px-3">
-						<div class="d-flex align-items-center">
-							<span class="me-2 fw-bold">{{ item.name }}</span>
-							<button class="btn btn-link text-dark p-0" title="Editar">
-								<i class="bi bi-pencil fs-5"></i>
-							</button>
-						</div>
-						<div class="d-flex align-items-center">
-							<span class="fs-4 me-3">{{ item.quantity_available  }} / {{ item.quantity_needed  }}</span>
-							<form method="post" action="{% url 'stock_detail' stock.id  %}" style="display: inline;">
-								{% csrf_token %}
-								<input type="hidden" name="delete_id" value="{{ item.id  }}">
-								<button type="submit" class="btn btn-link text-dark p-0" title="Excluir">
-									<i class="bi bi-trash fs-4"></i>
+				<li class="col">
+					<div class="list-group-item border border-black h-100 border-2" style="border-radius: 5px">
+						
+						<div id="item-display-{{ item.id }}" class="d-flex justify-content-between align-items-center py-2 px-3">
+							<div class="d-flex align-items-center">
+								<span class="fw-bold me-2 item-name">{{ item.name }}</span>
+							</div>
+							<div class="d-flex align-items-center">
+								<span class="fs-5 me-3 item-qty">{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
+
+								<button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
+									<i class="bi bi-pencil fs-5"></i>
 								</button>
-							</form>
+
+								<form method="post" action="{% url 'stock_detail' stock.id %}" style="display: inline;">
+									{% csrf_token %}
+									<input type="hidden" name="delete_id" value="{{ item.id }}">
+									<button type="submit" class="btn btn-link text-dark p-0" title="Excluir">
+										<i class="bi bi-trash fs-5"></i>
+									</button>
+								</form>
+							</div>
 						</div>
+
+						<form method="post" action="{% url 'stock_detail' stock.id %}" class="d-none item-edit-form" id="item-edit-form-{{ item.id }}">
+							{% csrf_token %}
+							<input type="hidden" name="update_name" value="{{ item.id }}">
+							<div class="d-flex justify-content-between align-items-center py-2 px-3">
+								<div class="d-flex align-items-center gap-2">
+									<input type="text" name="name" class="form-control" value="{{ item.name }}" style="max-width: 150px;" required>
+								</div>
+								<div class="d-flex align-items-center gap-2">
+									<input type="number" name="quantity_available" value="{{ item.quantity_available }}" min="0" class="form-control form-control-sm" style="width: 70px;" required>
+									<span>/</span>
+									<input type="number" name="quantity_needed" value="{{ item.quantity_needed }}" min="0" class="form-control form-control-sm" style="width: 70px;" required>
+
+									<button type="submit" class="btn btn-link text-success p-0" title="Salvar">
+										<i class="bi bi-check2 fs-5"></i>
+									</button>
+									<button type="button" class="btn btn-link text-danger p-0 cancel-edit" data-item-id="{{ item.id }}" title="Cancelar">
+										<i class="bi bi-x fs-5"></i>
+									</button>
+								</div>
+							</div>
+						</form>
 					</div>
-				</div>
-			</li>
+				</li>
 			{% endfor %}
 			
 			<li class="col">
@@ -80,10 +105,11 @@
 
 	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
 		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
-		<button class="btn border border-black border-2 text-black fs-5">Imprimir</button>
+		<a class="btn border border-black border-2 text-black fs-5" href="{% url 'generate-pdf-stock' stock.id %}">Imprimir</a>
     </div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+	<script src={% static 'flowstock/JS/estoque/update_item_name.js' %}></script>
 
 </body>
 

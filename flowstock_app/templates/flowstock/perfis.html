@@ -1,119 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" conten\t="width=device-width, initial-scale=1.0">
-    <title>Perfis Logados</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            padding: 20px;
-        }
-        .profile-container {
-            max-width: 600px; 
-            margin: 0 auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header .btn-voltar {
-            font-size: 16px;
-            color: #000000;
-            text-decoration: none;
-        }
-        .header .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
-        .profile-list {
-            list-style: none;
-            padding: 0;
-        }
-        .profile-list li {
-            display: flex;
-            align-items: center;
-            padding: 15px; 
-            background-color: #D6D6D6; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            margin-bottom: 10px; 
-            font-size: 16px;
-            color: #333;
-        }
-        .profile-list li:last-child {
-            margin-bottom: 0; 
-        }
-        .profile-list li:hover {
-            background-color: #c1c1c1;
-        }
-        .profile-list li i {
-            margin-right: 10px; 
-            color: #000; 
-            font-size: 24px; 
-        }
-        .add-user {
-            background-color: #007bff; 
-            color: #fff; 
-            border: none;
-            display: flex;
-            align-items: center; 
-            justify-content: center; 
-        }
-        .add-user:hover {
-            background-color: #0056b3; 
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Perfis Logados</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body>
-    <div class="profile-container">
+<body class="bg-light py-4">
 
-        <div class="header">
-            <div class="d-flex" onclick="window.location.href='{% url 'account_detail' %}'" style="cursor: pointer;">
-                <i class="bi bi-chevron-left"></i>
-                <span>Voltar</span>
-            </div>
-            <div class="title">Perfis Logados</div>
-        </div>
+	<div class="container">
+		<div class="mx-auto bg-white rounded shadow p-4" style="max-width: 600px;">
 
+			<div class="d-flex justify-content-between align-items-center mb-4">
+				<div class="d-flex align-items-center text-decoration-none text-dark" role="button" onclick="window.location.href='{% url 'account_detail' %}'">
+					<i class="bi bi-chevron-left me-1"></i>
+					<span>Voltar</span>
+				</div>
+				<div class="fw-bold text-dark fs-5">Perfis Logados</div>
+			</div>
 
-        <h3 class="mb-4">Quem irá usar?</h3>
+			<h3 class="mb-4">Quem irá usar?</h3>
 
+			<ul class="list-unstyled">
+				<li class="d-flex align-items-center p-3 bg-secondary bg-opacity-25 border rounded mb-2 text-dark">
+					<i class="bi bi-person-circle me-2 fs-4"></i>
+					joao.marcos@gmail.com
+				</li>
+				<li class="d-flex align-items-center p-3 bg-secondary bg-opacity-25 border rounded mb-2 text-dark">
+					<i class="bi bi-person-circle me-2 fs-4"></i>
+					marianna.haika@gmail.com
+				</li>
+				<li class="d-flex align-items-center p-3 bg-secondary bg-opacity-25 border rounded mb-2 text-dark">
+					<i class="bi bi-person-circle me-2 fs-4"></i>
+					daniel.miranda@gmail.com
+				</li>
+				<li class="d-flex align-items-center p-3 bg-secondary bg-opacity-25 border rounded mb-2 text-dark">
+					<i class="bi bi-person-circle me-2 fs-4"></i>
+					jose.alfredo@gmail.com
+				</li>
+				<li class="d-flex align-items-center justify-content-center p-3 btn btn-dark text-white border-0 rounded">
+					<i class="bi bi-plus-circle me-2 fs-5"></i>
+					Adicionar usuário
+				</li>
+			</ul>
+		</div>
+	</div>
 
-        <ul class="profile-list">
-            <li>
-                <i class="bi bi-person-circle"></i> 
-                joao.marcos@gmail.com
-            </li>
-            <li>
-                <i class="bi bi-person-circle"></i>
-                marianna.haika@gmail.com
-            </li>
-            <li>
-                <i class="bi bi-person-circle"></i>
-                daniel.miranda@gmail.com
-            </li>
-            <li>
-                <i class="bi bi-person-circle"></i>
-                jose.alfredo@gmail.com
-            </li>
-            
-            <li class="add-user">
-                <i class="bi bi-plus-circle"></i> 
-                Adicionar usuário
-            </li>
-        </ul>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
