@@ -67,6 +67,15 @@ document.querySelectorAll('.stock-edit-form input').forEach(input => {
 	});
 });
 
+document.querySelectorAll('.delete-btn').forEach(button => {
+	button.addEventListener('click', function(e) {
+		e.stopPropagation();
+		if (!confirm('Tem certeza que deseja excluir este estoque?')) {
+			e.preventDefault();
+		}
+	});
+});
+
 window.addEventListener('DOMContentLoaded', () => {
 
 	const urlParams = new URLSearchParams(window.location.search);

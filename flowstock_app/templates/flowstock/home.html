@@ -71,7 +71,7 @@
 							<form method="post" action="{% url 'stock-delete' stock.id %}" style="display: inline;">
 								{% csrf_token %}
 								<input type="hidden" name="delete_id" value="{{ stock.id }}">
-								<button type="submit" class="btn btn-link text-dark p-0" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este estoque?');">
+								<button type="submit" class="btn btn-link text-dark p-0 delete-btn">
 									<i class="bi bi-trash fs-4"></i>
 								</button>
 							</form>
