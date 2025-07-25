@@ -10,4 +10,5 @@ urlpatterns = [
     path('faqs/', views.faqs, name='faqs'),
     path('estoque/<int:stock_id>/', views.stock_detail, name='stock_detail'),
     path('stock/<int:stock_id>/generate-pdf-stock/', views.generate_pdf_stock, name='generate-pdf-stock'),
+    path('stock/<int:stock_id>/share/', views.share_stock, name='share-stock'),
 ]
