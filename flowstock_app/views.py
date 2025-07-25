@@ -220,7 +220,7 @@ def share_stock(request, stock_id):
                     else:
                         messages.warning(request, "Você não pode compartilhar o estoque com você mesmo.")
                 except User.DoesNotExist:
-                    messages.error(request, f"Usuário '{identifier}' não encontrado.")
+                    messages.error(request, f"Usuário '{identifier}' não encontrado.", extra_tags='danger')
 
         elif 'remove_member' in request.POST:
             member_id = request.POST.get('member_id')
@@ -229,8 +229,12 @@ def share_stock(request, stock_id):
                 stock.members.remove(user_to_remove)
                 messages.info(request, f"{user_to_remove.username} foi removido do estoque.")
             except User.DoesNotExist:
-                messages.error(request, "Usuário a ser removido não encontrado.")
+                messages.error(request, "Usuário a ser removido não encontrado.", extra_tags='danger')
         
-        return redirect(reverse('home') + f'?modal=share&stock_id={stock_id}')
+        next_url = request.POST.get('next', reverse('home'))
+        
+        redirect_url = f"{next_url}?modal=share&stock_id={stock_id}"
+        
+        return redirect(redirect_url)
     
-    return redirect('home')  # Ou para onde sua página principal está
+    return redirect('home')

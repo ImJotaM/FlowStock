@@ -1,4 +1,4 @@
-<div class="modal fade" id="shareModal-{{ stock.id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade share-modal" id="shareModal-{{ stock.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,9 +7,22 @@
             </div>
             <div class="modal-body">
                 
+                {% if messages %}
+                <div id="django-message-container" style="position: fixed; top: 80px; right: 20px; z-index: 1050; min-width: 250px;">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+
                 <h6>Convidar novo membro</h6>
                 <form action="{% url 'share-stock' stock.id %}" method="post" class="d-flex gap-2 add-member-form">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
                     <input type="text" name="identifier" class="form-control" placeholder="E-mail ou nome de usuário" required>
                     <button type="submit" name="add_member" class="btn btn-primary">Convidar</button>
                 </form>
@@ -23,6 +36,7 @@
                             {{ member.username }} ({{ member.email }})
                             <form action="{% url 'share-stock' stock.id %}" method="post" class="remove-member-form">
                                 {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
                                 <input type="hidden" name="member_id" value="{{ member.id }}">
                                 <button type="submit" name="remove_member" class="btn btn-sm btn-outline-danger" title="Remover acesso">
                                     <i class="bi bi-trash"></i>
@@ -38,3 +52,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const shareModals = document.querySelectorAll('.share-modal');
+
+        shareModals.forEach(function(modal) {
+            modal.addEventListener('hidden.bs.modal', function () {
+                
+                const messageContainer = document.getElementById('django-message-container');
+
+                if (messageContainer) {
+                    messageContainer.remove();
+                }
+            });
+        });
+    });
+</script>
