@@ -4,6 +4,8 @@ from .forms import SignUpForm, LoginForm
 from django.contrib.auth import authenticate, login as auth_login, update_session_auth_hash, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 def register(request):
 	if request.method == 'POST':
@@ -41,7 +43,6 @@ def account(request):
 		if 'delete_id' in request.POST:
 			user_id = request.POST.get('delete_id')
 			if request.user.id == int(user_id):
-       
 				logout(request)
 				User.objects.filter(id=user_id).delete()
 				messages.success(request, 'Sua conta foi excluída com sucesso.')
@@ -64,19 +65,25 @@ def account(request):
 				request.user.username = new_value.strip()
 				request.user.save()
 				messages.success(request, 'Nome atualizado com sucesso!', extra_tags='redefining_name')
-       
+		
 		elif field == 'email':
 			if not new_value or not new_value.strip():
 				messages.error(request, 'O e-mail não pode estar vazio', extra_tags='redefining_email')
 			elif new_value.strip() == request.user.email:
 				messages.error(request, 'Digite um email diferente do atual', extra_tags='redefining_email')
-			elif User.objects.exclude(pk=request.user.pk).filter(email=new_value.strip()).exists():
-				messages.error(request, 'Este e-mail já está em uso por outra conta', extra_tags='redefining_email')
 			else:
-				request.user.email = new_value.strip()
-				request.user.save()
-				messages.success(request, 'E-mail atualizado com sucesso!', extra_tags='redefining_email')
-			
+				try:
+					validate_email(new_value.strip())
+				except ValidationError:
+					messages.error(request, 'Formato de e-mail inválido', extra_tags='redefining_email')
+				else:
+					if User.objects.exclude(pk=request.user.pk).filter(email=new_value.strip()).exists():
+						messages.error(request, 'Este e-mail já está em uso por outra conta', extra_tags='redefining_email')
+					else:
+						request.user.email = new_value.strip()
+						request.user.save()
+						messages.success(request, 'E-mail atualizado com sucesso!', extra_tags='redefining_email')
+
 		elif field == 'password':
 			if new_value and len(new_value) >= 8:
 				request.user.set_password(new_value)
@@ -87,11 +94,15 @@ def account(request):
 				messages.error(request, 'A senha deve ter pelo menos 8 caracteres')
 			
 		return redirect('account')
-  
+
 	return render(request, 'accounts/conta.html')
 
 @login_required
 def profiles(request):
 	return render(request, 'accounts/perfis.html')
 
-# Create your views here.
+@login_required
+def view_logout(request):
+    logout(request)
+    messages.success(request, 'Você saiu da sua conta.')
+    return redirect('home')
