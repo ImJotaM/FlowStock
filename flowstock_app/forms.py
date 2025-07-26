@@ -52,3 +52,7 @@ class LoginForm(AuthenticationForm):
             ),
             'inactive': _("Esta conta está inativa."),
         }
+
+
+class ShareStockForm(forms.Form):
+    identifier = forms.CharField(label="E-mail ou nome de usuário", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'E-mail ou nome de usuário'}))
