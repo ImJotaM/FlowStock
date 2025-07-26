@@ -70,7 +70,7 @@ def create_stock(request):
 def update_stock(request, stock_id):
     stock = get_object_or_404(Stock, id=stock_id)
     membership = StockMembership.objects.filter(stock=stock, user=request.user).first()
-    can_edit_name = (request.user == stock.owner) or (membership and membership.role == 'admin')
+    can_edit_name = (request.user == stock.owner) or (membership and membership.role in ['editor', 'admin'])
 
     if not can_edit_name:
          raise PermissionDenied("Você não tem permissão para alterar o nome deste estoque.")
