@@ -3,10 +3,10 @@ from django.contrib.auth import authenticate, login as auth_login, update_sessio
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import Stock, Item
+from .models import Stock, Item, HistoricoEstoque
 from django.contrib.auth.models import User
 from datetime import date
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.staticfiles.finders import find
 from django.urls import reverse
 
@@ -70,38 +70,87 @@ def faqs(request):
 
 @login_required
 def stock_detail(request, stock_id):
-	stock = get_object_or_404(Stock, id=stock_id, user=request.user)
+    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
     
-	if request.method == 'POST':
-		if 'create' in request.POST:
-			count = Item.objects.filter(stock=stock).count()
-			Item.objects.create(stock=stock, name=f"Item #{count + 1}")
-			return redirect('stock_detail', stock_id=stock.id)
-		elif 'update_name' in request.POST:
-			item_id = request.POST.get('update_name')
-			item = Item.objects.filter(id=item_id, stock=stock).first()
-			if item:
-				item.name = request.POST.get('name', item.name)
-				try:
-					item.quantity_available = int(request.POST.get('quantity_available', item.quantity_available))
-				except (ValueError, TypeError):
-					pass
-				try:
-					item.quantity_needed = int(request.POST.get('quantity_needed', item.quantity_needed))
-				except (ValueError, TypeError):
-					pass
-				item.save()
-			return redirect('stock_detail', stock_id=stock.id)
-		elif 'delete_id' in request.POST:
-			item_id = request.POST.get('delete_id')
-			Item.objects.filter(id=item_id, stock=stock).delete()
-			return redirect('stock_detail', stock_id=stock.id)
+    if request.method == 'POST':
+        if 'create' in request.POST:
+            count = Item.objects.filter(stock=stock).count()
+            item = Item.objects.create(stock=stock, name=f"Item #{count + 1}")
+            HistoricoEstoque.objects.create(
+                stock=stock,
+                tipo_alteracao='ADI',
+                item_afetado_nome=item.name,
+                quantidade_alterada=1,
+                usuario=request.user,
+                observacoes='Item criado'
+            )
+            return redirect('stock_detail', stock_id=stock.id)
 
-	return render(request, 'flowstock/estoque.html', {
+        elif 'update_name' in request.POST:
+            item_id = request.POST.get('update_name')
+            item = Item.objects.filter(id=item_id, stock=stock).first()
+            if item:
+                nome_anterior = item.name
+                quantidade_anterior = item.quantity_available
+
+                item.name = request.POST.get('name', item.name)
+                try:
+                    item.quantity_available = int(request.POST.get('quantity_available', item.quantity_available))
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    item.quantity_needed = int(request.POST.get('quantity_needed', item.quantity_needed))
+                except (ValueError, TypeError):
+                    pass
+                item.save()
+
+                HistoricoEstoque.objects.create(
+                    stock=stock,
+                    tipo_alteracao='ATU',
+                    item_afetado_nome=item.name,
+                    quantidade_alterada=item.quantity_available - quantidade_anterior,
+                    usuario=request.user,
+                    observacoes='Item atualizado'
+                )
+            return redirect('stock_detail', stock_id=stock.id)
+
+        elif 'delete_id' in request.POST:
+            item_id = request.POST.get('delete_id')
+            item = Item.objects.filter(id=item_id, stock=stock).first()
+            if item:
+                nome_item = item.name
+                item.delete()
+                HistoricoEstoque.objects.create(
+                    stock=stock,
+                    tipo_alteracao='EXC',
+                    item_afetado_nome=nome_item,
+                    quantidade_alterada=1,
+                    usuario=request.user,
+                    observacoes='Item excluído'
+                )
+            return redirect('stock_detail', stock_id=stock.id)
+
+    return render(request, 'flowstock/estoque.html', {
         'stock': stock,
         'items': stock.items.all()
     })
 
+@login_required
+def historico_estoque_json(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id, user=request.user)
+    historico = stock.historicos.order_by('-data_hora')[:15]
+    data = [
+        {
+            'tipo': h.get_tipo_alteracao_display(),
+            'item': h.item_afetado_nome,
+            'quantidade': h.quantidade_alterada,
+            'data': h.data_hora.strftime('%d/%m/%Y %H:%M'),
+            'usuario': h.usuario.username if h.usuario else 'Desconhecido',
+            'obs': h.observacoes,
+        }
+        for h in historico
+    ]
+    return JsonResponse({'historico': data})
 
 @login_required
 def generate_pdf_stock(request, stock_id):
