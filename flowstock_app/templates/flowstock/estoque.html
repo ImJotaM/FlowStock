@@ -50,9 +50,10 @@
 							<div class="d-flex align-items-center">
 								<span class="fs-5 me-3 item-qty">{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
 
-								<button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
-									<i class="bi bi-pencil fs-5"></i>
-								</button>
+                                {% if can_edit %}
+                                <button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
+                                    <i class="bi bi-pencil fs-5"></i>
+                                </button>
 
 								<form method="post" action="{% url 'stock_detail' stock.id %}" style="display: inline;">
 									{% csrf_token %}
@@ -61,6 +62,7 @@
 										<i class="bi bi-trash fs-5"></i>
 									</button>
 								</form>
+								{% endif %}
 							</div>
 						</div>
 
@@ -88,7 +90,8 @@
 					</div>
 				</li>
 			{% endfor %}
-			
+
+			{% if can_edit %}
 			<li class="col">
 				<div class="list-group-item border border-black h-100 d-flex align-items-center justify-content-center border-2" style="border-radius: 5px">
 					<form method="post" action="{% url 'stock_detail' stock.id %}">
@@ -100,12 +103,13 @@
 					</form>
 				</div>
 			</li>
+			{% endif %}
 		</ul>
 	</div>
 
 	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
 		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
-		    {% if user == stock.owner %}
+		    {% if can_share %}
     		<button type="button" class="btn border border-black border-2 text-black fs-5" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
         	<i class="bi bi-person-plus"></i> Compartilhar
     		</button>
@@ -115,14 +119,18 @@
 
     {% include 'flowstock/partials/_share_modal.html' with stock=stock %}
 
-	{% if request.GET.modal == 'share' and request.GET.stock_id %}
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				var modal = new bootstrap.Modal(document.getElementById('shareModal-{{ request.GET.stock_id }}'));
-				modal.show();
-			});
-		</script>
-	{% endif %}
+    {% if request.GET.modal == 'share' and request.GET.stock_id %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modalId = 'shareModal-' + '{{ request.GET.stock_id }}';
+            var modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                var modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
+    </script>
+    {% endif %}
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 	<script src={% static 'flowstock/JS/estoque/update_item_name.js' %}></script>

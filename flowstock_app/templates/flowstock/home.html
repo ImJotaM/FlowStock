@@ -65,26 +65,30 @@
 							</form>
 						</div>
 						<div class="d-flex">
-							{% if user == stock.owner %}
-							<button class="btn btn-link text-dark p-0 me-3 edit-btn" title="Editar" data-stock-id="{{ stock.id }}">
-								<i class="bi bi-pencil fs-4"></i>
-							</button>
-							<form method="post" action="{% url 'stock-delete' stock.id %}" style="display: inline;">
-								{% csrf_token %}
-								<input type="hidden" name="delete_id" value="{{ stock.id }}">
-								<button type="submit" class="btn btn-link text-dark p-0 delete-btn">
-									<i class="bi bi-trash fs-4"></i>
-								</button>
-							</form>
-							{% endif %}
-
-
-							{% if user == stock.owner %}
-								<button type="button" class="btn btn-link text-dark p-0 ms-3" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}"  onclick="event.stopPropagation()">
-									<i class="bi bi-person-plus fs-4"></i>
-								</button>
-							{% endif %}
-						</div>
+                            
+                            {% if stock.user_can_edit %}
+                                <button class="btn btn-link text-dark p-0 me-3 edit-btn" title="Editar" data-stock-id="{{ stock.id }}" onclick="event.stopPropagation()">
+                                    <i class="bi bi-pencil fs-4"></i>
+                                </button>
+                            {% endif %}
+                        
+                            
+                            {% if stock.user_can_delete %}
+                                <form method="post" action="{% url 'stock-delete' stock.id %}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este estoque permanentemente?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-dark p-0 delete-btn" onclick="event.stopPropagation()">
+                                        <i class="bi bi-trash fs-4"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        
+                            
+                            {% if stock.user_can_share %}
+                                <button type="button" class="btn btn-link text-dark p-0 ms-3" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}"  onclick="event.stopPropagation()">
+                                    <i class="bi bi-person-plus fs-4"></i>
+                                </button>
+                            {% endif %}
+                        </div>
 					</div>
 				</li>
 				{% include 'flowstock/partials/_share_modal.html' with stock=stock %}
