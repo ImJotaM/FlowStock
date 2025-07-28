@@ -174,17 +174,9 @@
         <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
     
             <div class="d-flex gap-2 flex-wrap">
-
                 <a href="{% url 'profiles' %}" class="btn btn-outline-secondary btn-sm">
                     MUDAR DE USUÁRIO
                 </a>
-
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-secondary btn-sm">
-                        SAIR DA CONTA
-                    </button>
-                </form>
             </div>
 
             <form method="post" action="{% url 'account' %}">
