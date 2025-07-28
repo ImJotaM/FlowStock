@@ -1,5 +1,7 @@
-**/__pycache__
 db.sqlite3
+
+__pycache__/
+migrations/
 
 venv/
 env/

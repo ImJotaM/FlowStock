@@ -1,0 +1,104 @@
+<div class="modal fade share-modal" id="shareModal-{{ stock.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compartilhar "{{ stock.name }}"</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                {% if messages %}
+                <div id="django-message-container">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <h6>Convidar novo membro</h6>
+                <form action="{% url 'share-stock' stock.id %}" method="post" class="add-member-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <div class="input-group">
+                        <input type="text" name="identifier" class="form-control" placeholder="E-mail ou nome de usuário" required>
+                        <select name="role" class="form-select" style="max-width: 150px;">
+                            <option value="viewer" selected>Visualizador</option>
+                            <option value="editor">Editor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <button type="submit" name="add_member" class="btn btn-dark">Convidar</button>
+                    </div>
+                </form>
+                <hr>
+
+                <h6>Membros com acesso</h6>
+                {% with memberships=stock.stockmembership_set.all %}
+                {% if memberships %}
+                <ul class="list-group">
+                    {% for membership in memberships %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ membership.user.username }}</strong>
+                            <small class="text-muted">({{ membership.user.email }})</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+
+                            {% if membership.user == request.user %}
+                                <span class="badge bg-dark  fs-6">{{ membership.get_role_display }}</span>
+                            {% else %}
+                                <form action="{% url 'share-stock' stock.id %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    <input type="hidden" name="member_id" value="{{ membership.user.id }}">
+                                    <input type="hidden" name="update_role" value="true">
+                                    <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Visualizador</option>
+                                        <option value="editor" {% if membership.role == 'editor' %}selected{% endif %}>Editor</option>
+                                        <option value="admin" {% if membership.role == 'admin' %}selected{% endif %}>Admin</option>
+                                    </select>
+                                </form>
+                            {% endif %}
+
+                            {% if membership.user != request.user %}
+                            <form action="{% url 'share-stock' stock.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <input type="hidden" name="member_id" value="{{ membership.user.id }}">
+                                <button type="submit" name="remove_member" class="btn btn-sm btn-outline-danger" title="Remover acesso">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Este estoque não está compartilhado.</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const shareModals = document.querySelectorAll('.share-modal');
+
+    shareModals.forEach(function(modal) {
+        modal.addEventListener('hidden.bs.modal', function () {
+            
+            const messageContainer = document.getElementById('django-message-container');
+            if (messageContainer) {
+                messageContainer.remove();
+            }
+
+            window.history.replaceState(null, '', window.location.pathname);
+        });
+    });
+});
+</script>

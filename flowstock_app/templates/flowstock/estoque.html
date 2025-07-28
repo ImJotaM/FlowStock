@@ -20,7 +20,7 @@
 
 			<div class="d-flex align-items-center">
 				<i class="bi bi-chevron-left fs-3" onclick="window.location.href='{% url 'home' %}'" style="cursor: pointer;"></i>
-				<a class="navbar-brand p-0" href="#">
+				<a class="navbar-brand p-0" href="{% url 'home' %}">
 					<img src="{% static 'flowstock/resources/img/logo.jpg' %}" alt="Logo" style="max-height: 60px; width: auto;">
 				</a>
 			</div>
@@ -29,7 +29,7 @@
 				<h1>{{ stock.name  }}</h1>
 			</div>
 
-			<div class="d-flex align-items-center" onclick="window.location.href='{% url 'account_detail' %}'" style="cursor:pointer">
+			<div class="d-flex align-items-center" onclick="window.location.href='{% url 'account' %}'" style="cursor:pointer">
 				<span class="fw-bold me-2">{{ user.username }}</span>
 				<i class="bi bi-person-circle fs-1"></i>
 			</div>
@@ -50,9 +50,10 @@
 							<div class="d-flex align-items-center">
 								<span class="fs-5 me-3 item-qty">{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
 
-								<button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
-									<i class="bi bi-pencil fs-5"></i>
-								</button>
+                                {% if can_edit %}
+                                <button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
+                                    <i class="bi bi-pencil fs-5"></i>
+                                </button>
 
 								<form method="post" action="{% url 'stock_detail' stock.id %}" style="display: inline;">
 									{% csrf_token %}
@@ -61,6 +62,7 @@
 										<i class="bi bi-trash fs-5"></i>
 									</button>
 								</form>
+								{% endif %}
 							</div>
 						</div>
 
@@ -88,7 +90,8 @@
 					</div>
 				</li>
 			{% endfor %}
-			
+
+			{% if can_edit %}
 			<li class="col">
 				<div class="list-group-item border border-black h-100 d-flex align-items-center justify-content-center border-2" style="border-radius: 5px">
 					<form method="post" action="{% url 'stock_detail' stock.id %}">
@@ -100,13 +103,34 @@
 					</form>
 				</div>
 			</li>
+			{% endif %}
 		</ul>
 	</div>
 
 	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
 		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
+		    {% if can_share %}
+    		<button type="button" class="btn border border-black border-2 text-black fs-5" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
+        	<i class="bi bi-person-plus"></i> Compartilhar
+    		</button>
+    		{% endif %}
 		<a class="btn border border-black border-2 text-black fs-5" href="{% url 'generate-pdf-stock' stock.id %}">Imprimir</a>
     </div>
+
+    {% include 'flowstock/partials/_share_modal.html' with stock=stock %}
+
+    {% if request.GET.modal == 'share' and request.GET.stock_id %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var modalId = 'shareModal-' + '{{ request.GET.stock_id }}';
+            var modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                var modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        });
+    </script>
+    {% endif %}
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 	<script src={% static 'flowstock/JS/estoque/update_item_name.js' %}></script>

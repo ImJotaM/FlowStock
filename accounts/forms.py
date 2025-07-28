@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from .models import Stock
 
 class SignUpForm(UserCreationForm):
     
@@ -52,7 +51,3 @@ class LoginForm(AuthenticationForm):
             ),
             'inactive': _("Esta conta está inativa."),
         }
-
-
-class ShareStockForm(forms.Form):
-    identifier = forms.CharField(label="E-mail ou nome de usuário", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'E-mail ou nome de usuário'}))
