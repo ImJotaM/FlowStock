@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
@@ -51,3 +51,33 @@ class LoginForm(AuthenticationForm):
             ),
             'inactive': _("Esta conta está inativa."),
         }
+        
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label="",
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'autocomplete': 'email',
+            'class': 'form-control border-secondary',
+            'placeholder': 'Digite seu e-mail'
+        })
+    )
+
+class CustomSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="",
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'class': 'form-control border-secondary',
+            'placeholder': 'Digite a nova senha'
+        })
+    )
+    new_password2 = forms.CharField(
+        label="",
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'class': 'form-control border-secondary',
+            'placeholder': 'Confirme a nova senha'
+        })
+    )
