@@ -27,20 +27,24 @@ def root_redirect(request):
 
 @login_required
 def stock_list(request):
+    
+    view_filter = request.GET.get('view', 'my_stocks')
     search_query = request.GET.get('search', '')
     
-    stock_queryset = Stock.objects.filter(
-        Q(owner=request.user) | Q(members=request.user)
-    ).distinct().order_by('name')
+    if view_filter == 'shared':
+        base_queryset = Stock.objects.filter(members=request.user).exclude(owner=request.user)
+    else:
+        base_queryset = Stock.objects.filter(owner=request.user)
 
     if search_query:
-        stock_queryset = stock_queryset.filter(name__icontains=search_query)
+        stock_queryset = base_queryset.filter(name__icontains=search_query).distinct().order_by('name')
+    else:
+        stock_queryset = base_queryset.distinct().order_by('name')
 
     paginator = Paginator(stock_queryset, 8)
     page_number = request.GET.get('page')
     stocks_page = paginator.get_page(page_number)
 
-    # Otimização para evitar múltiplas queries ao banco de dados
     user_memberships = StockMembership.objects.filter(
         user=request.user,
         stock__in=stocks_page.object_list
@@ -53,10 +57,12 @@ def stock_list(request):
         
         stock.user_can_edit = is_owner or (role in ['editor', 'admin'])
         stock.user_can_share = is_owner or (role == 'admin')
-        stock.user_can_delete = is_owner  
+        stock.user_can_delete = is_owner
 
     return render(request, 'flowstock/home.html', {
         'stocks': stocks_page,
+        'current_view': view_filter,
+        'search_query': search_query,
     })
 
 
@@ -80,6 +86,12 @@ def update_stock(request, stock_id):
         if new_name:
             stock.name = new_name
             stock.save()
+
+        view_on_page = request.POST.get('view', 'my_stocks')
+
+        redirect_url = f"{reverse('home')}?view={view_on_page}"
+        return redirect(redirect_url)
+
     return redirect('home')
 
 
@@ -117,7 +129,6 @@ def stock_detail(request, stock_id):
     can_edit = is_owner or (membership and membership.role in ['editor', 'admin'])
     
     can_share = is_owner or (membership and membership.role == 'admin')
-
 
     if request.method == 'POST':
         

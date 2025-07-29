@@ -25,9 +25,10 @@
 
 			<div class="d-flex flex-grow-1 justify-content-center mx-4">
 				<form class="d-flex w-100" style="max-width: 600px;">
-					<input class="form-control border-dark rounded-0 rounded-start" type="search" name="search" placeholder="Pesquisar estoque" value="{{ request.GET.search }}">
+					<input type="hidden" name="view" value="{{ current_view }}">
+					<input class="form-control border-dark rounded-0 rounded-start" type="search" name="search" placeholder="Pesquisar estoque" value="{{ search_query }}">
 					<button class="btn btn-outline-dark rounded-0 rounded-end" type="submit">
-					<i class="bi bi-search"></i>
+						<i class="bi bi-search"></i>
 					</button>
 				</form>
 			</div>
@@ -50,9 +51,24 @@
 
 	</nav>
 
-	<div class="container-fluid py-4 d-flex justify-content-center">
-		<ul class="list-group border border-black" style="width: 80%">
-			{% for stock in stocks  %}
+	<div class="container-fluid py-4 d-flex flex-column align-items-center" style="width: 80%; margin: 0 auto;">
+    
+		<ul class="nav nav-tabs w-100 mb-3">
+			<li class="nav-item">
+				<a class="nav-link {% if current_view == 'my_stocks' %}active{% endif %}" href="{% url 'home' %}?view=my_stocks&search={{ search_query|default:'' }}">
+					Meus Estoques
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link {% if current_view == 'shared' %}active{% endif %}" href="{% url 'home' %}?view=shared&search={{ search_query|default:'' }}">
+					Compartilhados Comigo
+				</a>
+			</li>
+		</ul>
+
+		<ul class="list-group border border-black w-100">
+			
+			{% for stock in stocks %}
 				<li class="list-group-item" onclick="window.location.href='{% url 'stock_detail' stock.id %}'" style="cursor:pointer">
 					<div class="container-fluid d-flex justify-content-between align-items-center p-0">
 						<div class="d-flex align-items-center flex-grow-1">
@@ -62,6 +78,7 @@
 								{% csrf_token %}
 								<div class="d-flex flex-row">
 									<input type="hidden" name="update_id" value="{{ stock.id }}">
+									<input type="hidden" name="view" value="{{ current_view }}">
 									<input type="text" class="form-control me-4" name="name" value="{{ stock.name }}" style="min-width: 200px;">
 									<div class="d-flex flex-row">
 										<button type="submit" class="btn border border-black border-2 me-2">
@@ -75,34 +92,38 @@
 							</form>
 						</div>
 						<div class="d-flex">
-                            
-                            {% if stock.user_can_edit %}
-                                <button class="btn btn-link text-dark p-0 me-3 edit-btn" title="Editar" data-stock-id="{{ stock.id }}" onclick="event.stopPropagation()">
-                                    <i class="bi bi-pencil fs-4"></i>
-                                </button>
-                            {% endif %}
-                        
-                            
-                            {% if stock.user_can_delete %}
-                                <form method="post" action="{% url 'stock-delete' stock.id %}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este estoque permanentemente?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-link text-dark p-0 delete-btn" onclick="event.stopPropagation()">
-                                        <i class="bi bi-trash fs-4"></i>
-                                    </button>
-                                </form>
-                            {% endif %}
-                        
-                            
-                            {% if stock.user_can_share %}
-                                <button type="button" class="btn btn-link text-dark p-0 ms-3" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}"  onclick="event.stopPropagation()">
-                                    <i class="bi bi-person-plus fs-4"></i>
-                                </button>
-                            {% endif %}
-                        </div>
+							
+							{% if stock.user_can_edit %}
+								<button class="btn btn-link text-dark p-0 me-3 edit-btn" title="Editar" data-stock-id="{{ stock.id }}" onclick="event.stopPropagation()">
+									<i class="bi bi-pencil fs-4"></i>
+								</button>
+							{% endif %}
+						
+							{% if stock.user_can_delete %}
+								<form method="post" action="{% url 'stock-delete' stock.id %}" style="display: inline;">
+									{% csrf_token %}
+									<button type="submit" class="btn btn-link text-dark p-0 delete-btn me-3" onclick="event.stopPropagation()">
+										<i class="bi bi-trash fs-4"></i>
+									</button>
+								</form>
+							{% endif %}
+						
+							{% if stock.user_can_share %}
+								<button type="button" class="btn btn-link text-dark p-0" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}"  onclick="event.stopPropagation()">
+									<i class="bi bi-person-plus fs-4"></i>
+								</button>
+							{% endif %}
+						</div>
 					</div>
 				</li>
 				{% include 'flowstock/partials/_share_modal.html' with stock=stock %}
+			
+			{% empty %}
+				<li class="list-group-item text-center text-muted">
+					Nenhum estoque encontrado nesta categoria.
+				</li>
 			{% endfor %}
+			
 			<li class="list-group-item">
 				<div class="container-fluid d-flex justify-content-between align-items-center p-0">
 					<div class="container-fluid d-flex align-items-center justify-content-center">
