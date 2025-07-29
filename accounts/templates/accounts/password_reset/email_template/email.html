@@ -1,0 +1,13 @@
+{% autoescape off %}
+Olá {{ user.get_username }},
+
+Recebemos uma solicitação para redefinir sua senha.
+
+Clique no link abaixo para escolher uma nova senha:
+{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+Se você não solicitou isso, pode ignorar este e-mail.
+
+Atenciosamente,
+Equipe FlowStock
+{% endautoescape %}
