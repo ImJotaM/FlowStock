@@ -33,30 +33,26 @@ def stock_list(request):
     context = {
         'current_view': view_filter,
         'search_query': search_query,
+        'all_user_groups': UserGroup.objects.filter(owner=request.user),
     }
     
     if view_filter == 'groups':
-        # Lógica para a aba de Grupos
-        base_groups = UserGroup.objects.filter(owner=request.user)
         
+        groups_qs = UserGroup.objects.filter(
+            Q(owner=request.user) | Q(members=request.user),
+            parent=None
+        ).distinct()
+        
+        search_query = request.GET.get('search', '')
         if search_query:
-            # Filtra grupos pelo nome ou nome dos membros
-            base_groups = base_groups.filter(
-                Q(name__icontains=search_query) |
-                Q(members__username__icontains=search_query)
-            ).distinct()
+            groups_qs = groups_qs.filter(name__icontains=search_query)
 
-        # Pega apenas os grupos principais para a renderização inicial
-        context['groups'] = base_groups.filter(parent=None).prefetch_related(
-            'members', 'subgroups', 'subgroups__members'
-        )
-        # Necessário para o formulário de criação de subgrupos
-        context['all_user_groups'] = UserGroup.objects.filter(owner=request.user)
-
-    else: # Lógica para 'my_stocks' e 'shared'
+        context['groups'] = groups_qs.prefetch_related('members', 'subgroups__members')
+        context['search_query'] = search_query
+    else: 
         if view_filter == 'shared':
             base_queryset = Stock.objects.filter(members=request.user).exclude(owner=request.user)
-        else: # 'my_stocks' é o padrão
+        else: 
             base_queryset = Stock.objects.filter(owner=request.user)
 
         if search_query:

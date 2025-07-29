@@ -6,12 +6,15 @@
                     <div class="card border-2 shadow-sm">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <span class="fw-bold fs-5">{{ group.name }}</span>
+                            {% if group.owner == request.user %}
                             <form method="post" action="{% url 'group-delete' group.id %}" onsubmit="return confirm('Tem certeza que deseja excluir o grupo {{ group.name }}?');">
                                 {% csrf_token %}
+                                
                                 <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Grupo">
                                     <i class="bi bi-trash fs-5"></i>
                                 </button>
                             </form>
+                            {% endif %}
                         </div>
                         <div class="card-body">
                             <h6 class="card-subtitle mb-2 text-muted">Membros ({{ group.members.count }})</h6>
@@ -30,16 +33,23 @@
                                                         <input type="hidden" name="member_id" value="{{ member.id }}">
                                                         <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
                                                         <button type="submit" class="btn btn-secondary btn-sm" title="Remover Tag">
-                                                            {{ subgroup.name }} <i class="bi bi-x"></i>
+                                                            {{ subgroup.name }} 
+                                                            {% if group.owner == request.user %}
+                                                                <i class="bi bi-x"></i>
+                                                            {% endif %}   
                                                         </button>
                                                     </form>
                                                     {% endif %}
                                                 {% endfor %}
 
+
+
                                                 <div class="btn-group">
+                                                    {% if group.owner == request.user %}
                                                     <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Adicionar Tag">
                                                         <i class="bi bi-plus"></i>
                                                     </button>
+                                                    
                                                     <ul class="dropdown-menu">
                                                         {% for subgroup in group.subgroups.all %}
                                                             {% if member not in subgroup.members.all %}
@@ -55,28 +65,33 @@
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li><span class="dropdown-item-text text-muted"><small>Atribuir subgrupo</small></span></li>
                                                     </ul>
+                                                    {% endif %}
                                                 </div>
                                                 
                                             </div>
 
                                         </div>
+                                        {% if group.owner == request.user %}
                                         <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-link text-danger p-0" title="Remover Membro do Grupo">
                                                 <i class="bi bi-x-circle fs-5"></i>
                                             </button>
                                         </form>
+                                        {% endif %}
                                     </li>
                                     {% empty %}
                                     <li class="list-group-item text-muted px-0">Nenhum membro neste grupo.</li>
                                     {% endfor %}
                                 </ul>
+                            {% if group.owner == request.user %}
                             <form class="d-flex gap-2" method="post" action="{% url 'group-add-member' group.id %}">
                                 {% csrf_token %}
                                 <input type="text" name="identifier" class="form-control" placeholder="Usuário ou email para adicionar" required>
                             </form>
+                            {% endif %}
                         </div>
-                        {% if group.subgroups.all %}
+                        {% if group.subgroups.all and group.owner == request.user %}
                             <div class="card-footer">
                                 <small class="text-muted">Subgrupos:</small>
                                 <div class="d-flex flex-column gap-2 mt-1">
