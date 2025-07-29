@@ -335,10 +335,16 @@ def share_stock(request, stock_id):
         elif 'remove_group' in request.POST:
             group_membership_id = request.POST.get('group_membership_id')
             group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
-            group_name = group_membership.group.name
+            
+            group_to_remove = group_membership.group
+            group_name = group_to_remove.name
             
             group_membership.delete()
-            messages.info(request, f"O compartilhamento com o grupo '{group_name}' foi removido. Os membros mantêm seu acesso individual.")
+            
+            members_to_remove = group_to_remove.members.all()
+            StockMembership.objects.filter(stock=stock, user__in=members_to_remove).delete()
+
+            messages.info(request, f"O compartilhamento com o grupo '{group_name}' e seus membros foi removido.")
         
         elif 'update_group_role' in request.POST:
             group_membership_id = request.POST.get('group_membership_id')
@@ -389,21 +395,16 @@ def delete_group(request, group_id):
 
 @login_required
 def delete_subgroup(request, subgroup_id):
-    # Encontra o subgrupo ou retorna erro 404
     subgroup = get_object_or_404(UserGroup, id=subgroup_id)
 
-    # Verificação de segurança:
-    # Garante que o subgrupo tem um "pai" e que o usuário logado é o dono do grupo "pai".
     if subgroup.parent and subgroup.parent.owner == request.user:
         if request.method == 'POST':
             subgroup_name = subgroup.name
             subgroup.delete()
             messages.info(request, f"Subgrupo '{subgroup_name}' foi excluído com sucesso.")
         else:
-            # Se não for POST, apenas redireciona (evita exclusão via GET)
             messages.warning(request, "Ação de exclusão inválida.")
     else:
-        # Se o usuário não for o dono, nega a permissão
         messages.error(request, "Você не tem permissão para excluir este subgrupo.")
         
     return redirect(reverse('home') + '?view=groups')
@@ -424,9 +425,15 @@ def add_member_to_group(request, group_id):
                 group.members.add(user_to_add)
                 messages.success(request, f"{user_to_add.username} adicionado ao grupo '{group.name}'.")
                 
-                if group.parent and user_to_add not in group.parent.members.all():
-                    group.parent.members.add(user_to_add)
-                    messages.info(request, f"Como '{group.name}' é um subgrupo, {user_to_add.username} também foi adicionado ao grupo principal '{group.parent.name}'.")
+                shared_stocks_for_group = StockGroupMembership.objects.filter(group=group)
+                for g_membership in shared_stocks_for_group:
+                    StockMembership.objects.update_or_create(
+                        stock=g_membership.stock,
+                        user=user_to_add,
+                        defaults={'role': g_membership.role}
+                    )
+                if shared_stocks_for_group.exists():
+                    messages.info(request, f"Acesso aos estoques compartilhados foi concedido para {user_to_add.username}.")
                     
         except User.DoesNotExist:
             messages.error(request, f"Usuário '{identifier}' não encontrado.")
@@ -440,16 +447,10 @@ def remove_member_from_group(request, group_id, user_id):
         group.members.remove(user_to_remove)
         messages.info(request, f"{user_to_remove.username} removido do grupo '{group.name}'.")
         
-        if group.subgroups.exists():
-            removed_from_subgroups = []
-            for subgroup in group.subgroups.all():
-                if user_to_remove in subgroup.members.all():
-                    subgroup.members.remove(user_to_remove)
-                    removed_from_subgroups.append(subgroup.name)
-            
-            if removed_from_subgroups:
-                subgroup_names = ", ".join(removed_from_subgroups)
-                messages.info(request, f"{user_to_remove.username} também foi removido dos subgrupos: {subgroup_names}.")
+        stock_ids_shared_with_group = StockGroupMembership.objects.filter(group=group).values_list('stock_id', flat=True)
+        if stock_ids_shared_with_group:
+            StockMembership.objects.filter(stock_id__in=stock_ids_shared_with_group, user=user_to_remove).delete()
+            messages.warning(request, f"O acesso de {user_to_remove.username} aos estoques compartilhados via este grupo foi revogado.")
         
     return redirect(reverse('home') + '?view=groups')
 

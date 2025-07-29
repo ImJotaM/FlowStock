@@ -91,6 +91,14 @@
                                                 <option value="admin" {% if item.group_membership.role == 'admin' %}selected{% endif %}>Admin</option>
                                             </select>
                                         </form>
+                                        <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <input type="hidden" name="group_membership_id" value="{{ item.group_membership.id }}">
+                                            <button type="submit" name="remove_group" class="btn btn-sm btn-outline-danger" title="Remover compartilhamento com o grupo">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="accordion accordion-flush mt-2" id="accordion-group-{{ item.group_membership.group.id }}">
