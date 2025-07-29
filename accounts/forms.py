@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 class SignUpForm(UserCreationForm):
     
@@ -25,7 +26,13 @@ class SignUpForm(UserCreationForm):
             'class': 'form-control border-secondary'
         })
 
-    email = forms.EmailField(max_length=254, required=True)
+    email = forms.EmailField(max_length=254, required=True, help_text='Obrigatório. Um e-mail válido.')
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise ValidationError("Este endereço de e-mail já está cadastrado. Por favor, utilize outro.")
+        return email
 
     class Meta:
         model = User
