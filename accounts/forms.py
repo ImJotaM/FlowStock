@@ -51,7 +51,27 @@ class LoginForm(AuthenticationForm):
             ),
             'inactive': _("Esta conta está inativa."),
         }
+
+    def clean(self):
+        username= self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password and '@' in username:
+            try:
+                user = User.objects.get(email=username.lower())
+                
+                self.cleaned_data['username'] = user.username
+
+            except User.DoesNotExist:
+                self.error_messages = {
+                    'invalid_login': _(
+                        "Por favor, insira um email e senha corretos. Note que a senha "
+                        "diferencia maiúsculas e minúsculas."
+                    ),
+                }
+                pass
         
+        return super().clean()
 
 class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
