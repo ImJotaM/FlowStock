@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, update_sessio
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import Stock, Item, StockMembership
+from .models import Stock, Item, StockMembership, UserGroup, StockGroupMembership
 from django.contrib.auth.models import User
 from datetime import date
 from django.http import HttpResponse
@@ -30,40 +30,57 @@ def stock_list(request):
     
     view_filter = request.GET.get('view', 'my_stocks')
     search_query = request.GET.get('search', '')
-    
-    if view_filter == 'shared':
-        base_queryset = Stock.objects.filter(members=request.user).exclude(owner=request.user)
-    else:
-        base_queryset = Stock.objects.filter(owner=request.user)
-
-    if search_query:
-        stock_queryset = base_queryset.filter(name__icontains=search_query).distinct().order_by('name')
-    else:
-        stock_queryset = base_queryset.distinct().order_by('name')
-
-    paginator = Paginator(stock_queryset, 8)
-    page_number = request.GET.get('page')
-    stocks_page = paginator.get_page(page_number)
-
-    user_memberships = StockMembership.objects.filter(
-        user=request.user,
-        stock__in=stocks_page.object_list
-    ).values('stock_id', 'role')
-    roles_map = {m['stock_id']: m['role'] for m in user_memberships}
-
-    for stock in stocks_page:
-        is_owner = (request.user == stock.owner)
-        role = roles_map.get(stock.id)
-        
-        stock.user_can_edit = is_owner or (role in ['editor', 'admin'])
-        stock.user_can_share = is_owner or (role == 'admin')
-        stock.user_can_delete = is_owner
-
-    return render(request, 'flowstock/home.html', {
-        'stocks': stocks_page,
+    context = {
         'current_view': view_filter,
         'search_query': search_query,
-    })
+        'all_user_groups': UserGroup.objects.filter(owner=request.user),
+    }
+    
+    if view_filter == 'groups':
+        
+        groups_qs = UserGroup.objects.filter(
+            Q(owner=request.user) | Q(members=request.user),
+            parent=None
+        ).distinct()
+        
+        search_query = request.GET.get('search', '')
+        if search_query:
+            groups_qs = groups_qs.filter(name__icontains=search_query)
+
+        context['groups'] = groups_qs.prefetch_related('members', 'subgroups__members')
+        context['search_query'] = search_query
+    else: 
+        if view_filter == 'shared':
+            base_queryset = Stock.objects.filter(members=request.user).exclude(owner=request.user)
+        else: 
+            base_queryset = Stock.objects.filter(owner=request.user)
+
+        if search_query:
+            stock_queryset = base_queryset.filter(name__icontains=search_query).distinct().order_by('name')
+        else:
+            stock_queryset = base_queryset.distinct().order_by('name')
+
+        paginator = Paginator(stock_queryset, 8)
+        page_number = request.GET.get('page')
+        stocks_page = paginator.get_page(page_number)
+
+        user_memberships = StockMembership.objects.filter(
+            user=request.user,
+            stock__in=stocks_page.object_list
+        ).values('stock_id', 'role')
+        roles_map = {m['stock_id']: m['role'] for m in user_memberships}
+
+        for stock in stocks_page:
+            is_owner = (request.user == stock.owner)
+            role = roles_map.get(stock.id)
+            
+            stock.user_can_edit = is_owner or (role in ['editor', 'admin'])
+            stock.user_can_share = is_owner or (role == 'admin')
+            stock.user_can_delete = is_owner
+        
+        context['stocks'] = stocks_page
+
+    return render(request, 'flowstock/home.html', context)
 
 
 @login_required
@@ -265,12 +282,12 @@ def share_stock(request, stock_id):
                     user_to_add = User.objects.get(
                         Q(username__iexact=identifier) | Q(email__iexact=identifier)
                     )
-                    if user_to_add == stock.owner:
+                    if user_to_add == request.user:
                         messages.warning(request, "Você não pode compartilhar o estoque com você mesmo.")
                     else:
                         membership, created = StockMembership.objects.update_or_create(
-                            stock=stock,
-                            user=user_to_add,
+                            stock=stock, 
+                            user=user_to_add, 
                             defaults={'role': role}
                         )
                         if created:
@@ -291,10 +308,183 @@ def share_stock(request, stock_id):
             new_role = request.POST.get('role')
             StockMembership.objects.filter(stock=stock, user_id=member_id).update(role=new_role)
             messages.success(request, "Permissão do membro atualizada.")
+            
+        elif 'add_group' in request.POST:
+            group_id = request.POST.get('group_id')
+            role = request.POST.get('role')
+            
+            if not group_id:
+                messages.error(request, "Por favor, selecione um grupo.")
+                return redirect(redirect_url)
 
+            group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+
+            StockGroupMembership.objects.update_or_create(
+                stock=stock, group=group, defaults={'role': role}
+            )
+
+            for member in group.members.all():
+                StockMembership.objects.update_or_create(
+                    stock=stock, user=member, defaults={'role': role}
+                )
+            messages.success(request, f"O grupo '{group.name}' foi adicionado com sucesso")
+        elif 'remove_group' in request.POST:
+            group_membership_id = request.POST.get('group_membership_id')
+            group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
+            
+            group_to_remove = group_membership.group
+            group_name = group_to_remove.name
+            
+            group_membership.delete()
+            
+            members_to_remove = group_to_remove.members.all()
+            StockMembership.objects.filter(stock=stock, user__in=members_to_remove).delete()
+
+            messages.info(request, f"O compartilhamento com o grupo '{group_name}' e seus membros foi removido.")
+        
+        elif 'update_group_role' in request.POST:
+            group_membership_id = request.POST.get('group_membership_id')
+            new_role = request.POST.get('role')
+
+            group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
+            group_membership.role = new_role
+            group_membership.save()
+            
+            group_members = group_membership.group.members.all()
+            StockMembership.objects.filter(stock=stock, user__in=group_members).update(role=new_role)
+
+            messages.success(request, f"A permissão do grupo '{group_membership.group.name}' foi atualizada para {group_membership.get_role_display()}.")
+        
         next_url = request.POST.get('next', reverse('home'))
         redirect_url = f"{next_url}?modal=share&stock_id={stock_id}"
         return redirect(redirect_url)
     
     referer_url = request.META.get('HTTP_REFERER', reverse('home'))
     return redirect(f"{referer_url}?modal=share&stock_id={stock_id}")
+
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        parent_id = request.POST.get('parent')
+        if not name:
+            messages.error(request, "O nome do grupo não pode ser vazio.")
+            return redirect(reverse('home') + '?view=groups')
+        
+        if UserGroup.objects.filter(owner=request.user, name__iexact=name).exists():
+            messages.error(request, f"Você já possui um grupo chamado '{name}'. Por favor, escolha outro nome.")
+        else:
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(UserGroup, id=parent_id, owner=request.user)
+            UserGroup.objects.create(owner=request.user, name=name, parent=parent)
+            messages.success(request, f"Grupo '{name}' criado com sucesso.")
+    return redirect(reverse('home') + '?view=groups')
+
+@login_required
+def delete_group(request, group_id):
+    group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+    if request.method == 'POST':
+        group.delete()
+        messages.info(request, f"Grupo '{group.name}' e seus subgrupos foram excluídos.")
+    return redirect(reverse('home') + '?view=groups')
+
+@login_required
+def delete_subgroup(request, subgroup_id):
+    subgroup = get_object_or_404(UserGroup, id=subgroup_id)
+
+    if subgroup.parent and subgroup.parent.owner == request.user:
+        if request.method == 'POST':
+            subgroup_name = subgroup.name
+            subgroup.delete()
+            messages.info(request, f"Subgrupo '{subgroup_name}' foi excluído com sucesso.")
+        else:
+            messages.warning(request, "Ação de exclusão inválida.")
+    else:
+        messages.error(request, "Você не tem permissão para excluir este subgrupo.")
+        
+    return redirect(reverse('home') + '?view=groups')
+
+
+@login_required
+def add_member_to_group(request, group_id):
+    group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+    if request.method == 'POST':
+        identifier = request.POST.get('identifier')
+        try:
+            user_to_add = User.objects.get(Q(username__iexact=identifier) | Q(email__iexact=identifier))
+            if user_to_add == request.user:
+                messages.warning(request, "Você não pode adicionar a si mesmo.")
+            elif user_to_add in group.members.all():
+                 messages.warning(request, f"{user_to_add.username} já é membro deste grupo.")
+            else:
+                group.members.add(user_to_add)
+                messages.success(request, f"{user_to_add.username} adicionado ao grupo '{group.name}'.")
+                
+                shared_stocks_for_group = StockGroupMembership.objects.filter(group=group)
+                for g_membership in shared_stocks_for_group:
+                    StockMembership.objects.update_or_create(
+                        stock=g_membership.stock,
+                        user=user_to_add,
+                        defaults={'role': g_membership.role}
+                    )
+                if shared_stocks_for_group.exists():
+                    messages.info(request, f"Acesso aos estoques compartilhados foi concedido para {user_to_add.username}.")
+                    
+        except User.DoesNotExist:
+            messages.error(request, f"Usuário '{identifier}' não encontrado.")
+    return redirect(reverse('home') + '?view=groups')
+
+@login_required
+def remove_member_from_group(request, group_id, user_id):
+    group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+    user_to_remove = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        group.members.remove(user_to_remove)
+        messages.info(request, f"{user_to_remove.username} removido do grupo '{group.name}'.")
+        
+        stock_ids_shared_with_group = StockGroupMembership.objects.filter(group=group).values_list('stock_id', flat=True)
+        if stock_ids_shared_with_group:
+            StockMembership.objects.filter(stock_id__in=stock_ids_shared_with_group, user=user_to_remove).delete()
+            messages.warning(request, f"O acesso de {user_to_remove.username} aos estoques compartilhados via este grupo foi revogado.")
+        
+    return redirect(reverse('home') + '?view=groups')
+
+
+@login_required
+def assign_subgroup_to_member(request, group_id, member_id):
+    if request.method == 'POST':
+        member = get_object_or_404(User, id=member_id)
+        subgroup_id = request.POST.get('subgroup_id')
+        
+        if not subgroup_id:
+            messages.error(request, "Nenhum subgrupo selecionado.")
+            return redirect(reverse('home') + '?view=groups')
+
+        subgroup = get_object_or_404(UserGroup, id=subgroup_id)
+        parent_group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+
+        if subgroup.parent == parent_group and parent_group.owner == request.user:
+            subgroup.members.add(member)
+            messages.success(request, f"Tag '{subgroup.name}' adicionada para {member.username}.")
+        else:
+            messages.error(request, "Operação inválida. Permissão negada ou grupo incorreto.")
+            
+    return redirect(reverse('home') + '?view=groups')
+
+@login_required
+def unassign_subgroup_from_member(request):
+    if request.method == 'POST':
+        member_id = request.POST.get('member_id')
+        subgroup_id = request.POST.get('subgroup_id')
+        
+        member = get_object_or_404(User, id=member_id)
+        subgroup = get_object_or_404(UserGroup, id=subgroup_id)
+
+        if subgroup.parent and subgroup.parent.owner == request.user:
+            subgroup.members.remove(member)
+            messages.info(request, f"Tag '{subgroup.name}' removida de {member.username}.")
+        else:
+            messages.error(request, "Você não tem permissão para esta ação.")
+
+    return redirect(reverse('home') + '?view=groups')
