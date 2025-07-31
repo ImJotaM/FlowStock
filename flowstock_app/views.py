@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from .forms import ShareStockForm
+from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
 
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
@@ -356,11 +357,20 @@ def share_stock(request, stock_id):
             messages.success(request, f"A permissão do grupo '{group_membership.group.name}' foi atualizada para {group_membership.get_role_display()}.")
         
         next_url = request.POST.get('next', reverse('home'))
-        redirect_url = f"{next_url}?modal=share&stock_id={stock_id}"
+
+        parsed_url = urlparse(next_url)
+        query_params = parse_qs(parsed_url.query)
+
+        query_params['modal'] = ['share']
+        query_params['stock_id'] = [str(stock_id)]
+
+        new_query_string = urlencode(query_params, doseq=True)
+        redirect_url_parts = list(parsed_url)
+        redirect_url_parts[4] = new_query_string
+        redirect_url = urlunparse(redirect_url_parts)
+
         return redirect(redirect_url)
-    
-    referer_url = request.META.get('HTTP_REFERER', reverse('home'))
-    return redirect(f"{referer_url}?modal=share&stock_id={stock_id}")
+        
 
 @login_required
 def create_group(request):
