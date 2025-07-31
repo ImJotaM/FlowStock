@@ -98,10 +98,6 @@ def account(request):
 	return render(request, 'accounts/conta.html')
 
 @login_required
-def profiles(request):
-	return render(request, 'accounts/perfis.html')
-
-@login_required
 def view_logout(request):
     logout(request)
     messages.success(request, 'Você saiu da sua conta.')
