@@ -152,10 +152,9 @@ def stock_detail(request, stock_id):
 
         if 'create' in request.POST:
             count = Item.objects.filter(stock=stock).count()
-            item_name = f"Item #{count + 1}"
-            Item.objects.create(stock=stock, name=item_name)
-            
+            item_name = f"Item #{count + 1}"    
             new_item = Item.objects.create(stock=stock, name=item_name)
+            
             History.objects.create(
                 stock=stock,
                 user=request.user,
