@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login as auth_login, update_sessio
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import Stock, Item, StockMembership, UserGroup, StockGroupMembership
+from .models import Stock, Item, StockMembership, UserGroup, StockGroupMembership, History
 from django.contrib.auth.models import User
 from datetime import date
 from django.http import HttpResponse
@@ -136,52 +136,99 @@ def faqs(request):
 @login_required
 def stock_detail(request, stock_id):
     stock = get_object_or_404(Stock, id=stock_id)
-
     is_owner = (request.user == stock.owner)
-    
     membership = StockMembership.objects.filter(stock=stock, user=request.user).first()
     
     if not is_owner and not membership:
         raise PermissionDenied("Você não tem permissão para acessar este estoque.")
 
     can_edit = is_owner or (membership and membership.role in ['editor', 'admin'])
-    
     can_share = is_owner or (membership and membership.role == 'admin')
 
     if request.method == 'POST':
-        
         if not can_edit:
             messages.error(request, "Você não tem permissão para modificar itens neste estoque.", extra_tags='danger')
             return redirect('stock_detail', stock_id=stock.id)
 
         if 'create' in request.POST:
             count = Item.objects.filter(stock=stock).count()
-            Item.objects.create(stock=stock, name=f"Item #{count + 1}")
+            item_name = f"Item #{count + 1}"
+            Item.objects.create(stock=stock, name=item_name)
+            
+            new_item = Item.objects.create(stock=stock, name=item_name)
+            History.objects.create(
+                stock=stock,
+                user=request.user,
+                action_type='ITEM_CREATED',
+                item=new_item, 
+                item_name_snapshot=new_item.name,
+                details="O item foi adicionado ao estoque."
+            )
             messages.success(request, "Item criado com sucesso!")
         
         elif 'update_name' in request.POST:
             item_id = request.POST.get('update_name')
             item = Item.objects.filter(id=item_id, stock=stock).first()
             if item:
-                item.name = request.POST.get('name', item.name)
-                item.quantity_available = int(request.POST.get('quantity_available', item.quantity_available))
-                item.quantity_needed = int(request.POST.get('quantity_needed', item.quantity_needed))
-                item.save()
-                messages.success(request, "Item atualizado com sucesso!")
+                old_name = item.name
+                old_qty_available = item.quantity_available
+                old_qty_needed = item.quantity_needed
+
+                new_name = request.POST.get('name', old_name)
+                new_qty_available = int(request.POST.get('quantity_available', old_qty_available))
+                new_qty_needed = int(request.POST.get('quantity_needed', old_qty_needed))
+
+                details_list = []
+                if old_name != new_name:
+                    details_list.append(f"Nome alterado de '{old_name}' para '{new_name}'.")
+                if old_qty_available != new_qty_available:
+                    details_list.append(f"Quantidade disponível alterada de {old_qty_available} para {new_qty_available}.")
+                if old_qty_needed != new_qty_needed:
+                    details_list.append(f"Quantidade máxima alterada de {old_qty_needed} para {new_qty_needed}.")
+                
+                if details_list:
+                    History.objects.create(
+                        stock=stock,
+                        user=request.user,
+                        action_type='ITEM_UPDATED',
+                        item=item,
+                        item_name_snapshot=new_name, 
+                        details=" ".join(details_list)
+                    )
+                    item.name = new_name
+                    item.quantity_available = new_qty_available
+                    item.quantity_needed = new_qty_needed
+                    item.save()
+                    messages.success(request, "Item atualizado com sucesso!")
 
         elif 'delete_id' in request.POST:
             item_id = request.POST.get('delete_id')
-            Item.objects.filter(id=item_id, stock=stock).delete()
-            messages.info(request, "Item excluído com sucesso.")
+            item = Item.objects.filter(id=item_id, stock=stock).first()
+            if item:    
+                item_name_before_delete = item.name
+                History.objects.create(
+                    stock=stock,
+                    user=request.user,
+                    action_type='ITEM_DELETED',
+                    item_name_snapshot=item_name_before_delete,
+                    details=f"O item foi removido permanentemente."
+                )
+                item.delete()
+                messages.info(request, "Item excluído com sucesso.")
         
         return redirect('stock_detail', stock_id=stock.id)
-
+    
+    history_list = stock.history_entries.all().select_related('user')
+    
+    paginator = Paginator(history_list, 15)
+    history_page = paginator.get_page(1)
 
     context = {
         'stock': stock,
         'items': stock.items.all(),
         'can_edit': can_edit,
         'can_share': can_share,
+        'history_page': history_page,
     }
     return render(request, 'flowstock/estoque.html', context)
 
@@ -264,7 +311,6 @@ def generate_pdf_stock(request, stock_id):
 @login_required
 def share_stock(request, stock_id):
     stock = get_object_or_404(Stock, id=stock_id)
-
     is_owner = (request.user == stock.owner)
     membership = StockMembership.objects.filter(stock=stock, user=request.user).first()
     can_share = is_owner or (membership and membership.role == 'admin')
@@ -273,103 +319,102 @@ def share_stock(request, stock_id):
         raise PermissionDenied("Você não tem permissão para gerenciar o compartilhamento.")
 
     if request.method == 'POST':
+        action_type = None
+        details = ""
+
         if 'add_member' in request.POST:
             form = ShareStockForm(request.POST)
             if form.is_valid():
                 identifier = form.cleaned_data['identifier']
                 role = request.POST.get('role')
-
                 try:
-                    user_to_add = User.objects.get(
-                        Q(username__iexact=identifier) | Q(email__iexact=identifier)
-                    )
+                    user_to_add = User.objects.get(Q(username__iexact=identifier) | Q(email__iexact=identifier))
                     if user_to_add == request.user:
                         messages.warning(request, "Você não pode compartilhar o estoque com você mesmo.")
                     else:
                         membership, created = StockMembership.objects.update_or_create(
-                            stock=stock, 
-                            user=user_to_add, 
-                            defaults={'role': role}
+                            stock=stock, user=user_to_add, defaults={'role': role}
                         )
+                        role_display = membership.get_role_display()
                         if created:
-                            messages.success(request, f"{user_to_add.username} foi adicionado como {membership.get_role_display()}.")
+                            messages.success(request, f"{user_to_add.username} foi adicionado como {role_display}.")
+                            action_type = 'MEMBER_ADDED'
+                            details = f"Usuário '{user_to_add.username}' adicionado com a permissão de '{role_display}'."
                         else:
-                            messages.info(request, f"A permissão de {user_to_add.username} foi atualizada para {membership.get_role_display()}.")
-
+                            messages.info(request, f"A permissão de {user_to_add.username} foi atualizada para {role_display}.")
+                            action_type = 'MEMBER_ROLE_UPDATED'
+                            details = f"Permissão de '{user_to_add.username}' atualizada para '{role_display}'."
                 except User.DoesNotExist:
                     messages.error(request, f"Usuário '{identifier}' não encontrado.", extra_tags='danger')
 
         elif 'remove_member' in request.POST:
             member_id = request.POST.get('member_id')
-            StockMembership.objects.filter(stock=stock, user_id=member_id).delete()
+            member = get_object_or_404(User, id=member_id)
+            StockMembership.objects.filter(stock=stock, user=member).delete()
             messages.info(request, "Membro removido do estoque.")
+            action_type = 'MEMBER_REMOVED'
+            details = f"Usuário '{member.username}' foi removido do estoque."
         
         elif 'update_role' in request.POST:
             member_id = request.POST.get('member_id')
             new_role = request.POST.get('role')
-            StockMembership.objects.filter(stock=stock, user_id=member_id).update(role=new_role)
-            messages.success(request, "Permissão do membro atualizada.")
-            
+            member = get_object_or_404(User, id=member_id)
+            membership = StockMembership.objects.filter(stock=stock, user=member).first()
+            if membership:
+                membership.role = new_role
+                membership.save()
+                role_display = membership.get_role_display()
+                messages.success(request, "Permissão do membro atualizada.")
+                action_type = 'MEMBER_ROLE_UPDATED'
+                details = f"Permissão de '{member.username}' atualizada para '{role_display}'."
+
         elif 'add_group' in request.POST:
             group_id = request.POST.get('group_id')
             role = request.POST.get('role')
-            
-            if not group_id:
-                messages.error(request, "Por favor, selecione um grupo.")
-                return redirect(redirect_url)
-
-            group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
-
-            StockGroupMembership.objects.update_or_create(
-                stock=stock, group=group, defaults={'role': role}
-            )
-
-            for member in group.members.all():
-                StockMembership.objects.update_or_create(
-                    stock=stock, user=member, defaults={'role': role}
-                )
-            messages.success(request, f"O grupo '{group.name}' foi adicionado com sucesso")
+            if group_id:
+                group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+                StockGroupMembership.objects.update_or_create(stock=stock, group=group, defaults={'role': role})
+                messages.success(request, f"O grupo '{group.name}' foi adicionado com sucesso")
+                action_type = 'GROUP_ADDED'
+                details = f"Grupo '{group.name}' adicionado com a permissão de '{role}'."
+        
         elif 'remove_group' in request.POST:
             group_membership_id = request.POST.get('group_membership_id')
             group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
-            
-            group_to_remove = group_membership.group
-            group_name = group_to_remove.name
-            
+            group_name = group_membership.group.name
             group_membership.delete()
-            
-            members_to_remove = group_to_remove.members.all()
-            StockMembership.objects.filter(stock=stock, user__in=members_to_remove).delete()
+            messages.info(request, f"O compartilhamento com o grupo '{group_name}' foi removido.")
+            action_type = 'GROUP_REMOVED'
+            details = f"Compartilhamento com o grupo '{group_name}' foi removido."
 
-            messages.info(request, f"O compartilhamento com o grupo '{group_name}' e seus membros foi removido.")
-        
         elif 'update_group_role' in request.POST:
             group_membership_id = request.POST.get('group_membership_id')
             new_role = request.POST.get('role')
-
             group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
             group_membership.role = new_role
             group_membership.save()
-            
-            group_members = group_membership.group.members.all()
-            StockMembership.objects.filter(stock=stock, user__in=group_members).update(role=new_role)
+            role_display = group_membership.get_role_display()
+            messages.success(request, f"A permissão do grupo '{group_membership.group.name}' foi atualizada para {role_display}.")
+            action_type = 'GROUP_ROLE_UPDATED'
+            details = f"Permissão do grupo '{group_membership.group.name}' atualizada para '{role_display}'."
 
-            messages.success(request, f"A permissão do grupo '{group_membership.group.name}' foi atualizada para {group_membership.get_role_display()}.")
+        if action_type and details:
+            History.objects.create(stock=stock, user=request.user, action_type=action_type, details=details)
         
         next_url = request.POST.get('next', reverse('home'))
-
         parsed_url = urlparse(next_url)
         query_params = parse_qs(parsed_url.query)
-
         query_params['modal'] = ['share']
         query_params['stock_id'] = [str(stock_id)]
-
         new_query_string = urlencode(query_params, doseq=True)
         redirect_url_parts = list(parsed_url)
         redirect_url_parts[4] = new_query_string
         redirect_url = urlunparse(redirect_url_parts)
-
         return redirect(redirect_url)
+    
+    referer_url = request.META.get('HTTP_REFERER', reverse('home'))
+    return redirect(f"{referer_url}?modal=share&stock_id={stock_id}")
+
         
 
 @login_required
@@ -498,3 +543,25 @@ def unassign_subgroup_from_member(request):
             messages.error(request, "Você não tem permissão para esta ação.")
 
     return redirect(reverse('home') + '?view=groups')
+
+
+@login_required
+def stock_history(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id)
+
+    is_owner = (request.user == stock.owner)
+    membership = StockMembership.objects.filter(stock=stock, user=request.user).first()
+    if not is_owner and not membership:
+        raise PermissionDenied("Você não tem permissão para ver o histórico deste estoque.")
+
+    history_list = stock.history_entries.all().select_related('user')
+    
+    paginator = Paginator(history_list, 20) 
+    page_number = request.GET.get('page')
+    history_page = paginator.get_page(page_number)
+
+    context = {
+        'stock': stock,
+        'history_page': history_page
+    }
+    return render(request, 'flowstock/stock_history.html', context)
