@@ -63,7 +63,6 @@
 
     <main class="container py-4 py-lg-5">
     
-        <!-- Header: Title and Actions -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0">Meus Conteúdos</h1>
             <div>
@@ -125,7 +124,7 @@
                                     {% if stock.user_can_delete %}
                                         <form method="post" action="{% url 'stock-delete' stock.id %}" class="d-inline">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-link text-secondary p-0 me-3 delete-btn" onclick="event.stopPropagation(); return confirm('Tem certeza que deseja excluir este item?');">
+                                            <button type="submit" class="btn btn-link text-secondary p-0 me-3 delete-btn">
                                                 <i class="bi bi-trash fs-5"></i>
                                             </button>
                                         </form>
