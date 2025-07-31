@@ -5,39 +5,52 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 class SignUpForm(UserCreationForm):
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        self.fields['username'].widget.attrs.update({
-            'placeholder': 'Digite seu nome de usuário',
-            'class': 'form-control border-secondary'
-        })
-        self.fields['email'].widget.attrs.update({
-            'placeholder': 'Digite seu e-mail',
-            'class': 'form-control border-secondary'
-        })
-        self.fields['password1'].widget.attrs.update({
-            'placeholder': 'Digite sua senha',
-            'class': 'form-control border-secondary'
-        })
-        self.fields['password2'].widget.attrs.update({
-            'placeholder': 'Confirme sua senha',
-            'class': 'form-control border-secondary'
-        })
 
-    email = forms.EmailField(max_length=254, required=True, help_text='Obrigatório. Um e-mail válido.')
-    
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email__iexact=email).exists():
-            raise ValidationError("Este endereço de e-mail já está cadastrado. Por favor, utilize outro.")
-        return email
+    email = forms.EmailField(
+        required=True,
+        error_messages={
+            'required': _("O campo de e-mail é obrigatório."),
+            'invalid': _("Por favor, insira um endereço de e-mail válido."),
+        }
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
         
+        error_messages = {
+            'password_mismatch': _("As senhas não conferem."),
+            'username': {
+                'unique': _("Este nome de usuário já está em uso. Por favor, escolha outro."),
+                'required': _("O campo de nome de usuário é obrigatório."),
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'Digite seu nome de usuário',
+        })
+        self.fields['email'].widget.attrs.update({
+            'placeholder': 'Digite seu e-mail',
+        })
+        self.fields['password1'].widget.attrs.update({
+            'placeholder': 'Digite sua senha',
+        })
+        self.fields['password2'].widget.attrs.update({
+            'placeholder': 'Confirme sua senha',
+        })
+
+        for _, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control border-secondary'
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email__iexact=email).exists():
+            raise ValidationError(_("Este endereço de e-mail já está cadastrado. Por favor, utilize outro."))
+        return email
+
 class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -12,8 +12,6 @@ def register(request):
 		form = SignUpForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			username = form.cleaned_data.get('username')
-			messages.success(request, f'Conta criada para {username}!')
 			auth_login(request, user)
 			return redirect('home')
 	else:
@@ -29,7 +27,6 @@ def login(request):
 			user = authenticate(request, username=username, password=password)
 			if user is not None:
 				auth_login(request, user)
-				messages.success(request, f'Bem-vindo, {username}!')
 				return redirect('home')
 	else:
 		form = LoginForm()
@@ -96,10 +93,6 @@ def account(request):
 		return redirect('account')
 
 	return render(request, 'accounts/conta.html')
-
-@login_required
-def profiles(request):
-	return render(request, 'accounts/perfis.html')
 
 @login_required
 def view_logout(request):

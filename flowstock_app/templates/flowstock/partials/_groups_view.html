@@ -1,155 +1,163 @@
-<div class="row row-cols-1 row-cols-lg-2 g-4 w-100">
-    <div class="col-lg-8">
-        <div class="row row-cols-1 g-4">
-            {% for group in groups %}
-                <div class="col-12">
-                    <div class="card border-2 shadow-sm">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <span class="fw-bold fs-5">{{ group.name }}</span>
+{% load static %}
+
+<style>
+    .group-card .card-header, .group-card .card-footer {
+        background-color: #f8f9fa;
+    }
+    .tag-badge {
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.3em 0.6em;
+    }
+    .btn-close-tag {
+        font-size: 0.6em;
+        margin-left: 0.4em;
+    }
+</style>
+
+<div class="p-3 p-md-4">
+    <div class="row g-4">
+
+        <div class="col-lg-7">
+            <div class="d-flex flex-column gap-4">
+                {% for group in groups %}
+                    <div class="card group-card border-0 shadow-sm" style="border-radius: 0.75rem;">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0 fw-bold">{{ group.name }}</h5>
                             {% if group.owner == request.user %}
-                            <form method="post" action="{% url 'group-delete' group.id %}" onsubmit="return confirm('Tem certeza que deseja excluir o grupo {{ group.name }}?');">
-                                {% csrf_token %}
-                                
-                                <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Grupo">
-                                    <i class="bi bi-trash fs-5"></i>
-                                </button>
-                            </form>
+                                <form method="post" action="{% url 'group-delete' group.id %}" onsubmit="return confirm('Tem certeza que deseja excluir o grupo {{ group.name }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Grupo"><i class="bi bi-trash"></i></button>
+                                </form>
                             {% endif %}
                         </div>
+
                         <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">Membros ({{ group.members.count }})</h6>
-                            <ul class="list-group list-group-flush mb-3">
-                                    {% for member in group.members.all %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <div>
-                                            {{ member.username }} ({{ member.email }})
-                                            
-                                            <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
-                                            
-                                                {% for subgroup in group.subgroups.all %}
-                                                    {% if member in subgroup.members.all %}
-                                                    <form method="post" action="{% url 'member-unassign-subgroup' %}" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="member_id" value="{{ member.id }}">
-                                                        <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
-                                                        <button type="submit" class="btn btn-secondary btn-sm" title="Remover Tag">
-                                                            {{ subgroup.name }} 
-                                                            {% if group.owner == request.user %}
-                                                                <i class="bi bi-x"></i>
-                                                            {% endif %}   
-                                                        </button>
-                                                    </form>
-                                                    {% endif %}
-                                                {% endfor %}
-
-
-
-                                                <div class="btn-group">
-                                                    {% if group.owner == request.user %}
-                                                    <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Adicionar Tag">
-                                                        <i class="bi bi-plus"></i>
-                                                    </button>
-                                                    
-                                                    <ul class="dropdown-menu">
-                                                        {% for subgroup in group.subgroups.all %}
-                                                            {% if member not in subgroup.members.all %}
-                                                            <li>
-                                                                <form method="post" action="{% url 'member-assign-subgroup' group_id=group.id member_id=member.id %}" class="dropdown-item p-0">
-                                                                    {% csrf_token %}
-                                                                    <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
-                                                                    <button type="submit" class="btn btn-link text-decoration-none text-dark w-100 text-start ps-3">{{ subgroup.name }}</button>
-                                                                </form>
-                                                            </li>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><span class="dropdown-item-text text-muted"><small>Atribuir subgrupo</small></span></li>
-                                                    </ul>
-                                                    {% endif %}
+                            <h6 class="text-muted mb-3">MEMBROS ({{ group.members.count }})</h6>
+                            <ul class="list-group list-group-flush">
+                                {% for member in group.members.all %}
+                                    <li class="list-group-item px-0 py-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-bold">{{ member.username }}</div>
+                                                <div class="small text-muted">{{ member.email }}</div>
+                                                <div class="mt-2 d-flex flex-wrap gap-1">
+                                                    {% for subgroup in group.subgroups.all %}
+                                                        {% if member in subgroup.members.all %}
+                                                            <span class="badge rounded-pill bg-light text-dark border d-flex align-items-center tag-badge">
+                                                                {{ subgroup.name }}
+                                                                {% if group.owner == request.user %}
+                                                                    <form method="post" action="{% url 'member-unassign-subgroup' %}" class="d-inline">
+                                                                        {% csrf_token %}
+                                                                        <input type="hidden" name="member_id" value="{{ member.id }}">
+                                                                        <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
+                                                                        <button type="submit" class="btn-close btn-close-tag" aria-label="Remover Tag"></button>
+                                                                    </form>
+                                                                {% endif %}
+                                                            </span>
+                                                        {% endif %}
+                                                    {% endfor %}
                                                 </div>
-                                                
                                             </div>
-
+                                            {% if group.owner == request.user %}
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Atribuir Subgrupo"><i class="bi bi-plus"></i></button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            {% for subgroup in group.subgroups.all %}
+                                                                {% if member not in subgroup.members.all %}
+                                                                    <li>
+                                                                        <form method="post" action="{% url 'member-assign-subgroup' group_id=group.id member_id=member.id %}" class="dropdown-item p-0">
+                                                                            {% csrf_token %}
+                                                                            <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
+                                                                            <button type="submit" class="btn btn-link text-decoration-none text-dark w-100 text-start ps-3">{{ subgroup.name }}</button>
+                                                                        </form>
+                                                                    </li>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Membro"><i class="bi bi-person-x"></i></button>
+                                                    </form>
+                                                </div>
+                                            {% endif %}
                                         </div>
-                                        {% if group.owner == request.user %}
-                                        <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-link text-danger p-0" title="Remover Membro do Grupo">
-                                                <i class="bi bi-x-circle fs-5"></i>
-                                            </button>
-                                        </form>
-                                        {% endif %}
                                     </li>
-                                    {% empty %}
-                                    <li class="list-group-item text-muted px-0">Nenhum membro neste grupo.</li>
-                                    {% endfor %}
-                                </ul>
-                            {% if group.owner == request.user %}
-                            <form class="d-flex gap-2" method="post" action="{% url 'group-add-member' group.id %}">
-                                {% csrf_token %}
-                                <input type="text" name="identifier" class="form-control" placeholder="Usuário ou email para adicionar" required>
-                            </form>
-                            {% endif %}
+                                {% empty %}
+                                    <li class="list-group-item px-0 text-muted">Nenhum membro neste grupo ainda.</li>
+                                {% endfor %}
+                            </ul>
                         </div>
-                        {% if group.subgroups.all and group.owner == request.user %}
-                            <div class="card-footer">
-                                <small class="text-muted">Subgrupos:</small>
-                                <div class="d-flex flex-column gap-2 mt-1">
-                                    {% for subgroup in group.subgroups.all %}
-                                    <div class="d-flex justify-content-between align-items-center bg-light p-1 rounded">
-                                        <span class="badge bg-secondary">{{ subgroup.name }}</span>
-                                        
-                                        <form method="post" action="{% url 'subgroup-delete' subgroup.id %}" onsubmit="return confirm('Tem certeza que deseja excluir o subgrupo \'{{ subgroup.name }}\'? Esta ação não pode ser desfeita.');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Subgrupo">
-                                                <i class="bi bi-trash-fill" style="font-size: 0.8rem;"></i>
-                                            </button>
-                                        </form>
 
+                        {% if group.owner == request.user %}
+                            <div class="card-footer p-3">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">ADICIONAR MEMBRO</label>
+                                    <form method="post" action="{% url 'group-add-member' group.id %}">
+                                        {% csrf_token %}
+                                        <div class="input-group">
+                                            <input type="text" name="identifier" class="form-control" placeholder="Usuário ou email" required>
+                                            <button class="btn btn-outline-primary" type="submit">Adicionar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div>
+                                    <label class="form-label small fw-bold">GERENCIAR SUBGRUPOS (TAGS)</label>
+                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                        {% for subgroup in group.subgroups.all %}
+                                            <span class="badge rounded-pill bg-secondary d-flex align-items-center tag-badge">
+                                                {{ subgroup.name }}
+                                                <form method="post" action="{% url 'subgroup-delete' subgroup.id %}" class="ms-1">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn-close btn-close-white btn-close-tag" aria-label="Excluir Subgrupo"></button>
+                                                </form>
+                                            </span>
+                                        {% empty %}
+                                            <small class="text-muted">Nenhum subgrupo criado.</small>
+                                        {% endfor %}
                                     </div>
-                                    {% endfor %}
                                 </div>
                             </div>
                         {% endif %}
                     </div>
-                </div>
-            {% empty %}
-                <div class="col-12">
-                    <div class="list-group-item text-center text-muted p-4 border rounded">
-                        {% if search_query %}
-                            Nenhum grupo encontrado para a busca "{{ search_query }}".
-                        {% else %}
-                            Você ainda não criou nenhum grupo. Use o formulário para começar!
-                        {% endif %}
+                {% empty %}
+                    <div class="text-center p-5">
+                        <i class="bi bi-people-fill" style="font-size: 4rem; color: #e9ecef;"></i>
+                        <h4 class="mt-3 fw-bold">Nenhum grupo por aqui</h4>
+                        <p class="text-muted">Use o formulário ao lado para criar seu primeiro grupo e organizar seus estoques.</p>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div class="card border-2 sticky-top" style="top: 20px;">
-            <div class="card-header fw-bold">Criar Novo Grupo</div>
-            <div class="card-body">
-                <form method="post" action="{% url 'group-create' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Nome do Grupo</label>
-                        <input type="text" name="name" class="form-control" required placeholder="Ex: Caixas">
-                    </div>
-                    <div class="mb-3">
-                        <label for="parent" class="form-label">Subgrupo de (Opcional)</label>
-                        <select name="parent" class="form-select">
-                            <option value="">Nenhum (Grupo Principal)</option>
-                            {% for g in groups %}
-                                <option value="{{ g.id }}">{{ g.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-plus-circle"></i> Criar Grupo
-                    </button>
-                </form>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 110px; border-radius: 0.75rem;">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="mb-0 fw-bold">Criar Novo Grupo</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'group-create' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome do Grupo</label>
+                            <input type="text" name="name" class="form-control" required placeholder="Ex: Empresa">
+                        </div>
+                        <div class="mb-3">
+                            <label for="parent" class="form-label">Subgrupo de (Opcional)</label>
+                            <select name="parent" class="form-select">
+                                <option value="">Nenhum (será um grupo principal)</option>
+                                {% for g in groups %}
+                                    <option value="{{ g.id }}">{{ g.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-circle me-1"></i> Criar Grupo
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

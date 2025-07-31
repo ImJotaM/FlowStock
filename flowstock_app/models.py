@@ -96,6 +96,19 @@ class Item(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     
+    def get_percentage(self):
+        if self.quantity_needed == 0:
+            return 100
+
+        try:
+            ratio = self.quantity_available / self.quantity_needed
+        except ZeroDivisionError:
+            return 100
+
+        percentage = min(ratio * 100, 100)
+        
+        return int(percentage)
+    
     def __str__(self):
         return self.name
     
