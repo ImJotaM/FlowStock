@@ -29,7 +29,6 @@ def login(request):
 			user = authenticate(request, username=username, password=password)
 			if user is not None:
 				auth_login(request, user)
-				messages.success(request, f'Bem-vindo, {username}!')
 				return redirect('home')
 	else:
 		form = LoginForm()
