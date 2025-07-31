@@ -76,17 +76,17 @@
             <div class="px-4 border-bottom">
                 <ul class="nav nav-pills">
                     <li class="nav-item">
-                        <a class="nav-link {% if current_view == 'my_stocks' %}active{% endif %}" href="{% url 'home' %}?view=my_stocks&search={{ search_query|default:'' }}">
+                        <a class="nav-link {% if current_view == 'my_stocks' %}active{% endif %}" href="{% url 'home' %}?view=my_stocks">
                             Meus Estoques
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if current_view == 'shared' %}active{% endif %}" href="{% url 'home' %}?view=shared&search={{ search_query|default:'' }}">
+                        <a class="nav-link {% if current_view == 'shared' %}active{% endif %}" href="{% url 'home' %}?view=shared">
                             Compartilhados Comigo
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if current_view == 'groups' %}active{% endif %}" href="{% url 'home' %}?view=groups&search={{ search_query|default:'' }}">
+                        <a class="nav-link {% if current_view == 'groups' %}active{% endif %}" href="{% url 'home' %}?view=groups">
                             Grupos
                         </a>
                     </li>
