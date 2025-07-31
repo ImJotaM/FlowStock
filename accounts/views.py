@@ -12,8 +12,6 @@ def register(request):
 		form = SignUpForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			username = form.cleaned_data.get('username')
-			messages.success(request, f'Conta criada para {username}!')
 			auth_login(request, user)
 			return redirect('home')
 	else:
