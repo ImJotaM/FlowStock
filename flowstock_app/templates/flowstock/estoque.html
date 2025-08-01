@@ -31,6 +31,15 @@
             background-color: #f8f9fa;
             border-color: #0d6efd !important;
         }
+		.btn-clean {
+			background-color: #fff;
+			border: 1px solid #dee2e6;
+			transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+		}
+		.btn-clean:hover {
+			background-color: #f8f9fa;
+			border-color: #d3d6d8;
+		}
     </style>
 </head>
 <body>
@@ -46,16 +55,20 @@
                 <h2 class="mb-0 fw-bold">{{ stock.name }}</h2>
             </div>
             <div class="d-flex gap-2">
-                <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#historyModal">
-                <i class="bi bi-clock-history me-1"></i> Histórico
-                </button>
-                {% if can_share %}
-                <button type="button" class="btn bg-white border" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
-                    <i class="bi bi-person-plus"></i> Compartilhar
-                </button>
-                {% endif %}
-                <a class="btn bg-white border" href="{% url 'generate-pdf-stock' stock.id %}">Imprimir</a>
-            </div>
+				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#historyModal">
+					<i class="bi bi-clock-history me-2"></i>Histórico
+				</button>
+
+				{% if can_share %}
+				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
+					<i class="bi bi-person-plus me-2"></i>Compartilhar
+				</button>
+				{% endif %}
+
+				<a class="btn btn-clean text-dark fw-medium" href="{% url 'generate-pdf-stock' stock.id %}">
+					<i class="bi bi-printer me-2"></i>Imprimir
+				</a>
+			</div>
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
