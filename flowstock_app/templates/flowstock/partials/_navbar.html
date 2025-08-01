@@ -12,7 +12,11 @@
                 <input type="hidden" name="view" value="{{ current_view|default:'my_stocks' }}">
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0" id="search-icon"><i class="bi bi-search"></i></span>
-                    <input class="form-control border-start-0 bg-light" type="search" name="search" placeholder="Pesquisar em {{ current_view|default:'meus estoques' }}..." value="{{ search_query|default:'' }}" aria-label="Pesquisar" aria-describedby="search-icon">
+                    <input class="form-control border-start-0 bg-light" type="search" name="search" placeholder="Pesquisar em {% if current_view == 'my_stocks' %}Meus Estoques...
+																															  {% elif current_view == 'shared' %}Compartilhados Comigo...
+																															  {% elif current_view == 'groups' %}Grupos...
+																															  {% else %}Meus Estoques...{% endif %}..." 
+					value="{{ search_query|default:'' }}" aria-label="Pesquisar" aria-describedby="search-icon">
                 </div>
             </form>
         </div>
