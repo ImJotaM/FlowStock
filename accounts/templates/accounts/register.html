@@ -30,7 +30,7 @@
                                     {% for field in form %}
                                         {% if field.errors %}
                                             {% for error in field.errors %}
-                                                O campo de <strong>{{ field.label|default:field.name|capfirst }}</strong> é obrigatório.<br>
+                                                {{ error|safe }}<br>
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
