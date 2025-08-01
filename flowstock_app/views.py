@@ -373,6 +373,13 @@ def share_stock(request, stock_id):
             if group_id:
                 group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
                 StockGroupMembership.objects.update_or_create(stock=stock, group=group, defaults={'role': role})
+                for member in group.members.all():
+                    if member != request.user: 
+                        StockMembership.objects.update_or_create(
+                        stock=stock, 
+                        user=member, 
+                        defaults={'role': role}
+                )
                 messages.success(request, f"O grupo '{group.name}' foi adicionado com sucesso")
                 action_type = 'GROUP_ADDED'
                 details = f"Grupo '{group.name}' adicionado com a permissão de '{role}'."
