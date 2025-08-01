@@ -392,6 +392,7 @@ def share_stock(request, stock_id):
             group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
             group_membership.role = new_role
             group_membership.save()
+            StockMembership.objects.filter(stock=stock, user__in=group_membership.group.members.all()).update(role=new_role)
             role_display = group_membership.get_role_display()
             messages.success(request, f"A permissão do grupo '{group_membership.group.name}' foi atualizada para {role_display}.")
             action_type = 'GROUP_ROLE_UPDATED'
