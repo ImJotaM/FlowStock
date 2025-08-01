@@ -118,6 +118,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center gap-2">
+                                                {% if request.user == stock.owner %}
                                                 <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
                                                     {% csrf_token %}
                                                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -135,6 +136,9 @@
                                                     <input type="hidden" name="group_membership_id" value="{{ item.group_membership.id }}">
                                                     <button type="submit" name="remove_group" class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-x-lg"></i></button>
                                                 </form>
+                                                {% else %}
+                                                <span class="text-muted">{{ item.group_membership.get_role_display }}</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                         <!-- Acordeão de Membros do Grupo com Funcionalidade Completa -->
@@ -178,24 +182,33 @@
                                                 <div class="small text-muted">{{ membership.user.email }}</div>
                                             </div>
                                         </div>
+                                        
                                         <div class="d-flex align-items-center gap-2">
-                                            <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                                <input type="hidden" name="member_id" value="{{ membership.user.id }}">
-                                                <input type="hidden" name="update_role" value="true">
-                                                <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
-                                                    <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Visualizador</option>
-                                                    <option value="editor" {% if membership.role == 'editor' %}selected{% endif %}>Editor</option>
-                                                    <option value="admin" {% if membership.role == 'admin' %}selected{% endif %}>Admin</option>
-                                                </select>
-                                            </form>
-                                            <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                                <input type="hidden" name="member_id" value="{{ membership.user.id }}">
-                                                <button type="submit" name="remove_member" class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-x-lg"></i></button>
-                                            </form>
+                                            
+                                            {% if membership.user == request.user and request.user != stock.owner %}
+                                                
+                                                <span class="text-muted">{{ membership.get_role_display }}</span>
+
+                                            {% else %}
+
+                                                <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                    <input type="hidden" name="member_id" value="{{ membership.user.id }}">
+                                                    <input type="hidden" name="update_role" value="true">
+                                                    <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                        <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Visualizador</option>
+                                                        <option value="editor" {% if membership.role == 'editor' %}selected{% endif %}>Editor</option>
+                                                        <option value="admin" {% if membership.role == 'admin' %}selected{% endif %}>Admin</option>
+                                                    </select>
+                                                </form>
+                                                <form action="{% url 'share-stock' stock.id %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                    <input type="hidden" name="member_id" value="{{ membership.user.id }}">
+                                                    <button type="submit" name="remove_member" class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-x-lg"></i></button>
+                                                </form>
+                                            {% endif %}
                                         </div>
                                     </li>
                                     {% endwith %}
