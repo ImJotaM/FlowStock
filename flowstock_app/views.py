@@ -387,7 +387,10 @@ def share_stock(request, stock_id):
         elif 'remove_group' in request.POST:
             group_membership_id = request.POST.get('group_membership_id')
             group_membership = get_object_or_404(StockGroupMembership, id=group_membership_id, stock=stock)
-            group_name = group_membership.group.name
+            group = group_membership.group
+            group_name = group.name
+            members_to_remove = group.members.all()
+            StockMembership.objects.filter(stock=stock, user__in=members_to_remove).delete()
             group_membership.delete()
             messages.info(request, f"O compartilhamento com o grupo '{group_name}' foi removido.")
             action_type = 'GROUP_REMOVED'
