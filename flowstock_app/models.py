@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class StockMembership(models.Model):
     ROLE_VIEWER = 'viewer'
@@ -124,3 +125,33 @@ class UserGroup(models.Model):
 
     class Meta:
         unique_together = ('owner', 'name')
+        
+class History(models.Model):
+    ACTION_CHOICES = [
+        ('ITEM_CREATED', 'Criação de Item'),
+        ('ITEM_UPDATED', 'Atualização de Item'),
+        ('ITEM_DELETED', 'Exclusão de Item'),
+        ('MEMBER_ADDED', 'Membro Adicionado'),
+        ('MEMBER_REMOVED', 'Membro Removido'),
+        ('MEMBER_ROLE_UPDATED', 'Permissão de Membro Atualizada'),
+        ('GROUP_ADDED', 'Grupo Adicionado'),
+        ('GROUP_REMOVED', 'Grupo Removido'),
+        ('GROUP_ROLE_UPDATED', 'Permissão de Grupo Atualizada'),
+    ]
+
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name='history_entries', verbose_name="Estoque")
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True, blank=True, related_name='history_logs', verbose_name="Item Associado")
+    item_name_snapshot = models.CharField(max_length=255, null=True, blank=True, verbose_name="Nome do Item (no momento da ação)")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Usuário")
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name="Data e Hora")
+    action_type = models.CharField(max_length=30, choices=ACTION_CHOICES, verbose_name="Tipo de Ação")
+    details = models.TextField(blank=True, null=True, verbose_name="Detalhes")
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = "Registro de Histórico"
+        verbose_name_plural = "Registros de Histórico"
+
+    def __str__(self):
+        user_display = self.user.username if self.user else "Sistema"
+        return f'{self.get_action_type_display()} em "{self.stock.name}" por {user_display}'

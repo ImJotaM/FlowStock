@@ -18,4 +18,5 @@ urlpatterns = [
     path('subgroup/<int:subgroup_id>/delete/', views.delete_subgroup, name='subgroup-delete'),
     path('groups/<int:group_id>/member/<int:member_id>/assign/', views.assign_subgroup_to_member, name='member-assign-subgroup'),
     path('groups/member/unassign/', views.unassign_subgroup_from_member, name='member-unassign-subgroup'),
+    path('stock/<int:stock_id>/history/', views.stock_history, name='stock_history'),
 ]
