@@ -22,17 +22,23 @@
                         <form method="post">
                             {% csrf_token %}
                             
-                            {% if form.non_field_errors %}
-                                <div class="alert alert-danger">
+                            {% if form.errors %}
+                                <div class="alert alert-danger p-2">
+                                    {% for field in form %}
+                                        {% if field.errors %}
+                                            {% for error in field.errors %}
+                                                O campo de <strong>{{ field.label|default:field.name|capfirst }}</strong> é obrigatório.<br>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
                                     {% for error in form.non_field_errors %}
-                                        {{ error }}
+                                        {{ error }}<br>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                             
                             {% for field in form %}
                                 <div class="mb-3">
-                                    {{ field.errors }}
                                     <input type="{{ field.field.widget.input_type }}" 
                                         class="form-control border-secondary" 
                                         name="{{ field.name }}" 
@@ -49,7 +55,7 @@
                                         Lembrar-me
                                     </label>
                                 </div>
-                                <a href="#" class="text-muted">Esqueci minha senha</a>
+                                <a href="{% url 'password_reset' %}" class="text-muted">Esqueci minha senha</a>
                             </div>
                             
                             <div class="d-grid mb-3">

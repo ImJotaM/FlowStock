@@ -3,33 +3,131 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>FAQ's</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perguntas Frequentes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* Define uma fonte mais moderna e um fundo suave para a página */
+        body {
+            background-color: #f8f9fa !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        }
+
+        /* Container principal do FAQ com cantos arredondados e sombra sutil */
+        .faq-container {
+            background-color: #ffffff !important;
+            border: none !important;
+            border-radius: 1rem !important; /* Cantos mais arredondados */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+            max-width: 800px;
+        }
+        
+        /* Cabeçalho principal */
+        .faq-header h1 {
+            font-weight: 700 !important;
+            color: #343a40 !important;
+        }
+
+        /* Estilo para cada item do accordion (pergunta/resposta) */
+        .accordion-item {
+            border: none !important;
+            /* Adiciona uma borda inferior suave para separar os itens */
+            border-bottom: 1px solid #e9ecef !important;
+        }
+
+        /* Remove a borda do último item para um visual limpo */
+        .accordion-item:last-of-type {
+            border-bottom: none !important;
+        }
+        
+        /* Remove o arredondamento padrão do Bootstrap para controlar o nosso */
+        .accordion-item:first-of-type .accordion-button {
+            border-top-left-radius: 0.5rem !important;
+            border-top-right-radius: 0.5rem !important;
+        }
+        
+        .accordion-item:last-of-type .accordion-button.collapsed {
+            border-bottom-left-radius: 0.5rem !important;
+            border-bottom-right-radius: 0.5rem !important;
+        }
+
+        /* Estilo do botão do accordion (a pergunta clicável) */
+        .accordion-button {
+            font-weight: 600 !important;
+            color: #495057 !important;
+            background-color: #ffffff !important;
+            padding: 1.25rem 1.5rem !important;
+            /* Remove o brilho azul ao focar no botão */
+            box-shadow: none !important;
+        }
+
+        /* Estilo do botão quando o item está aberto (não colapsado) */
+        .accordion-button:not(.collapsed) {
+            color: #0d6efd !important; /* Cor primária do Bootstrap para destaque */
+            background-color: #f8f9fa !important;
+        }
+        
+        /* O Bootstrap usa um pseudo-elemento ::after para o ícone padrão. Vamos removê-lo. */
+        .accordion-button::after {
+            display: none !important;
+        }
+        
+        /* Estilo para nosso ícone customizado */
+        .faq-icon {
+            margin-left: auto !important; /* Empurra o ícone para a direita */
+            transition: transform 0.3s ease-in-out !important;
+            font-size: 1.2rem !important;
+        }
+
+        /* Gira o nosso ícone quando o item está aberto */
+        .accordion-button:not(.collapsed) .faq-icon {
+            transform: rotate(180deg) !important;
+        }
+
+        /* Corpo da resposta */
+        .accordion-body {
+            padding: 1.5rem !important;
+            line-height: 1.7 !important;
+            color: #6c757d !important;
+        }
+        
+        /* Estilo do link de "Voltar" */
+        .back-link {
+            color: #6c757d !important;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover {
+            color: #0d6efd !important;
+        }
+
+    </style>
 </head>
-<body class="bg-white text-dark py-4 px-3">
+<body class="py-5">
 
-	<div class="container">
-		<div class="mx-auto border rounded-4 shadow p-4" style="max-width: 800px;">
-			<div class="d-flex justify-content-between align-items-center mb-4">
-				<div class="d-flex align-items-center text-decoration-none text-dark" onclick="window.location.href='{% url 'home' %}'" style="cursor: pointer;">
-					<i class="bi bi-chevron-left me-1"></i>
-					<span>Voltar</span>
-				</div>
-				<div class="fw-bold fs-4">Ajuda</div>
-			</div>
+    <div class="container">
+        <div class="mx-auto faq-container p-4 p-md-5">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="javascript:history.back()" class="back-link d-flex align-items-center">
+                    <i class="bi bi-chevron-left me-2"></i>
+                    <span>Voltar</span>
+                </a>
+            </div>
 
-			<h2 class="text-center fw-bold mb-4">FAQ's</h2>
+            <div class="text-center faq-header mb-4">
+                <h1>Perguntas Frequentes</h1>
+            </div>
 
-			<div class="accordion" id="faqAccordion">
+            <div class="accordion" id="faqAccordion">
+                </div>
+        </div>
+    </div>
 
-			</div>
-		</div>
-	</div>
-
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	<script src={% static 'flowstock/JS/FAQ/render_faqs.js' %}></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'flowstock/JS/FAQ/render_faqs.js' %}"></script>
 </body>
 </html>

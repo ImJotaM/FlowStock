@@ -1,0 +1,34 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FlowStock - E-mail Enviado</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: rgb(240, 240, 240);">
+
+	<div class="container d-flex flex-column min-vh-100 justify-content-center align-items-center py-5">
+		<div class="card p-5" style="max-width: 800px; border-radius: 15px;">
+			<div class="row g-0">
+				<div class="col-md-5 d-flex align-items-center">
+					<img src="{% static 'flowstock/resources/img/brand.png' %}" class="img-fluid rounded-start" alt="FlowStock Logo">
+				</div>
+				<div class="col-md-7 d-flex align-items-center">
+					<div class="card-body text-center">
+						<h1 class="h4 mb-4">Verifique seu e-mail</h1>
+						<p class="text-muted mb-4">
+							Se uma conta com esse e-mail existir, você receberá um link para redefinir sua senha em instantes.
+						</p>
+						<a href="{% url 'login' %}" class="btn btn-outline-dark px-4">Voltar para login</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

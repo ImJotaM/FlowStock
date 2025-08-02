@@ -4,137 +4,175 @@
 <html lang="pt-br">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Estoque #1</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ stock.name }} - FlowStock</title>
 
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <style>
+        body {
+            background-color: #f4f5f7;
+            font-family: 'Inter', sans-serif;
+        }
+        .progress {
+            height: 8px;
+        }
+        .card-add-item {
+            border-style: dashed !important;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .card-add-item:hover {
+            background-color: #f8f9fa;
+            border-color: #0d6efd !important;
+        }
+		.btn-clean {
+			background-color: #fff;
+			border: 1px solid #dee2e6;
+			transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+		}
+		.btn-clean:hover {
+			background-color: #f8f9fa;
+			border-color: #d3d6d8;
+		}
+    </style>
 </head>
 <body>
 
-	<nav class="navbar bg-white px-2 border-bottom border-dark">
-		<div class="container-fluid">
+    {% include 'flowstock/partials/_navbar.html' %}
 
-			<div class="d-flex align-items-center">
-				<i class="bi bi-chevron-left fs-3" onclick="window.location.href='{% url 'home' %}'" style="cursor: pointer;"></i>
-				<a class="navbar-brand p-0" href="{% url 'home' %}">
-					<img src="{% static 'flowstock/resources/img/logo.jpg' %}" alt="Logo" style="max-height: 60px; width: auto;">
+    <div class="container py-5">
+        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <a href="javascript:history.back()" class="btn bg-white border me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h2 class="mb-0 fw-bold">{{ stock.name }}</h2>
+            </div>
+            <div class="d-flex gap-2">
+				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#historyModal">
+					<i class="bi bi-clock-history me-2"></i>Histórico
+				</button>
+
+				{% if can_share %}
+				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
+					<i class="bi bi-person-plus me-2"></i>Compartilhar
+				</button>
+				{% endif %}
+
+				<a class="btn btn-clean text-dark fw-medium" href="{% url 'generate-pdf-stock' stock.id %}">
+					<i class="bi bi-printer me-2"></i>Imprimir
 				</a>
 			</div>
+        </div>
 
-			<div class="d-flex flex-grow-1 justify-content-center">
-				<h1>{{ stock.name  }}</h1>
-			</div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for item in items %}
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-4">
+                        <div class="card-body d-flex flex-column">
+                            
+                            <div id="item-display-{{ item.id }}">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="fw-bold fs-5 item-name">{{ item.name }}</span>
+                                    {% if can_edit %}
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-link text-secondary p-0 item-edit-btn" title="Editar" data-item-id="{{ item.id }}"><i class="bi bi-pencil-fill"></i></button>
+                                        <form method="post" action="{% url 'stock_detail' stock.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="delete_id" value="{{ item.id }}">
+                                            <button type="submit" class="btn btn-sm btn-link text-dark p-0" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir o item \'{{ item.name }}\'?');"><i class="bi bi-trash-fill"></i></button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between small text-muted mb-1">
+                                        <span>Disponível</span>
+                                        <span>{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
+                                    </div>
+                                    {% with percentage=item.get_percentage|default:0 %}
+                                    <div class="progress rounded-pill">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    {% endwith %}
+                                </div>
+                            </div>
 
-			<div class="d-flex align-items-center" onclick="window.location.href='{% url 'account' %}'" style="cursor:pointer">
-				<span class="fw-bold me-2">{{ user.username }}</span>
-				<i class="bi bi-person-circle fs-1"></i>
-			</div>
-		</div>
+                            <form method="post" action="{% url 'stock_detail' stock.id %}" class="d-none item-edit-form h-100" id="item-edit-form-{{ item.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_name" value="{{ item.id }}">
+                                <div class="d-flex flex-column h-100">
+                                    <div class="mb-3">
+                                        <label class="form-label small">Nome do Item</label>
+                                        <input type="text" name="name" class="form-control" value="{{ item.name }}" required>
+                                    </div>
+                                    <div class="d-flex gap-2 mb-3">
+                                        <div>
+                                            <label class="form-label small">Disponível</label>
+                                            <input type="number" name="quantity_available" value="{{ item.quantity_available }}" min="0" class="form-control" required>
+                                        </div>
+                                        <div>
+                                            <label class="form-label small">Necessário</label>
+                                            <input type="number" name="quantity_needed" value="{{ item.quantity_needed }}" min="0" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="mt-auto d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-secondary cancel-edit" data-item-id="{{ item.id }}">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Salvar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
 
-	</nav>
-
-	<div class="container-fluid py-4">
-		<ul class="list-unstyled row row-cols-1 row-cols-md-3 g-4">
-			{% for item in items %}
-				<li class="col">
-					<div class="list-group-item border border-black h-100 border-2" style="border-radius: 5px">
-						
-						<div id="item-display-{{ item.id }}" class="d-flex justify-content-between align-items-center py-2 px-3">
-							<div class="d-flex align-items-center">
-								<span class="fw-bold me-2 item-name">{{ item.name }}</span>
-							</div>
-							<div class="d-flex align-items-center">
-								<span class="fs-5 me-3 item-qty">{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
-
-                                {% if can_edit %}
-                                <button type="button" class="btn btn-link text-dark p-0 me-2 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
-                                    <i class="bi bi-pencil fs-5"></i>
-                                </button>
-
-								<form method="post" action="{% url 'stock_detail' stock.id %}" style="display: inline;">
-									{% csrf_token %}
-									<input type="hidden" name="delete_id" value="{{ item.id }}">
-									<button type="submit" class="btn btn-link text-dark p-0" title="Excluir">
-										<i class="bi bi-trash fs-5"></i>
-									</button>
-								</form>
-								{% endif %}
-							</div>
-						</div>
-
-						<form method="post" action="{% url 'stock_detail' stock.id %}" class="d-none item-edit-form" id="item-edit-form-{{ item.id }}">
-							{% csrf_token %}
-							<input type="hidden" name="update_name" value="{{ item.id }}">
-							<div class="d-flex justify-content-between align-items-center py-2 px-3">
-								<div class="d-flex align-items-center gap-2">
-									<input type="text" name="name" class="form-control" value="{{ item.name }}" style="max-width: 150px;" required>
-								</div>
-								<div class="d-flex align-items-center gap-2">
-									<input type="number" name="quantity_available" value="{{ item.quantity_available }}" min="0" class="form-control form-control-sm" style="width: 70px;" required>
-									<span>/</span>
-									<input type="number" name="quantity_needed" value="{{ item.quantity_needed }}" min="0" class="form-control form-control-sm" style="width: 70px;" required>
-
-									<button type="submit" class="btn btn-link text-success p-0" title="Salvar">
-										<i class="bi bi-check2 fs-5"></i>
-									</button>
-									<button type="button" class="btn btn-link text-danger p-0 cancel-edit" data-item-id="{{ item.id }}" title="Cancelar">
-										<i class="bi bi-x fs-5"></i>
-									</button>
-								</div>
-							</div>
-						</form>
-					</div>
-				</li>
-			{% endfor %}
-
-			{% if can_edit %}
-			<li class="col">
-				<div class="list-group-item border border-black h-100 d-flex align-items-center justify-content-center border-2" style="border-radius: 5px">
-					<form method="post" action="{% url 'stock_detail' stock.id %}">
-						{% csrf_token %}
-						<input type="hidden" name="create" value="true">
-						<button type="submit" class="btn p-0">
-							<i class="bi bi-plus-circle fs-4"></i>
-						</button>
-					</form>
-				</div>
-			</li>
-			{% endif %}
-		</ul>
-	</div>
-
-	<div class="position-absolute bottom-0 start-0 p-4 d-flex gap-3">
-		<button class="btn border border-black border-2 text-black fs-5">Histórico</button>
-		    {% if can_share %}
-    		<button type="button" class="btn border border-black border-2 text-black fs-5" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
-        	<i class="bi bi-person-plus"></i> Compartilhar
-    		</button>
-    		{% endif %}
-		<a class="btn border border-black border-2 text-black fs-5" href="{% url 'generate-pdf-stock' stock.id %}">Imprimir</a>
+            {% if can_edit %}
+            <div class="col">
+                <form method="post" action="{% url 'stock_detail' stock.id %}" class="h-100">
+                    {% csrf_token %}
+                    <input type="hidden" name="create" value="true">
+                    <button type="submit" class="btn card h-100 border-2 card-add-item w-100">
+                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
+                            <i class="bi bi-plus-circle-fill fs-1 mb-2"></i>
+                            <span class="fw-bold">Adicionar Novo Item</span>
+                        </div>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
     {% include 'flowstock/partials/_share_modal.html' with stock=stock %}
-
-    {% if request.GET.modal == 'share' and request.GET.stock_id %}
+    {% include 'flowstock/partials/_history_modal.html' with stock=stock history_page=history_page %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'flowstock/JS/estoque/update_item_name.js' %}"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var modalId = 'shareModal-' + '{{ request.GET.stock_id }}';
-            var modalElement = document.getElementById(modalId);
-            if (modalElement) {
-                var modal = new bootstrap.Modal(modalElement);
-                modal.show();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('modal') === 'share' && urlParams.get('stock_id') === '{{ stock.id|stringformat:"s" }}') {
+                const shareModalElement = document.getElementById('shareModal-{{ stock.id }}');
+                if (shareModalElement) {
+                    const modal = new bootstrap.Modal(shareModalElement);
+                    modal.show();
+                    
+                    // Limpa a URL quando o modal é aberto via parâmetro
+                    const cleanUrl = new URL(window.location);
+                    cleanUrl.searchParams.delete('modal');
+                    cleanUrl.searchParams.delete('stock_id');
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
             }
         });
     </script>
-    {% endif %}
-
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-	<script src={% static 'flowstock/JS/estoque/update_item_name.js' %}></script>
 
 </body>
-
 </html>
