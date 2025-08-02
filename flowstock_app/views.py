@@ -13,12 +13,15 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from .forms import ShareStockForm
 from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
+import locale
 
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from reportlab.lib import colors
+from reportlab.lib.colors import HexColor
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 def root_redirect(request):
     if request.user.is_authenticated:
@@ -235,76 +238,134 @@ def stock_detail(request, stock_id):
 def generate_pdf_stock(request, stock_id):
     stock = get_object_or_404(Stock, id=stock_id)
 
-    if request.user != stock.owner and request.user not in stock.members.all():
+    # Lógica de permissão
+    if request.user != stock.owner and not stock.members.filter(id=request.user.id).exists():
         raise PermissionDenied("Você não tem permissão para gerar este PDF.")
 
-    items = stock.items.all().order_by('name')
-
+    # --- 1. Configuração do Documento e Fontes ---
     response = HttpResponse(content_type='application/pdf')
-    filename = f"lista-compra-{stock.name.replace(' ', '-').lower()}.pdf"
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    filename = f"estoque-{stock.name.replace(' ', '-').lower()}.pdf"
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
 
-    doc = SimpleDocTemplate(response, rightMargin=inch, leftMargin=inch, topMargin=inch, bottomMargin=inch)
+    doc = SimpleDocTemplate(response, rightMargin=0.75*inch, leftMargin=0.75*inch, topMargin=0.75*inch, bottomMargin=0.75*inch)
     
-    story = []
+    # Tenta registrar as fontes customizadas, com fallback para Helvetica
+    try:
+        inter_regular_path = find('fonts/Inter-Regular.ttf')
+        inter_bold_path = find('fonts/Inter-Bold.ttf')
+        pdfmetrics.registerFont(TTFont('Inter', inter_regular_path))
+        pdfmetrics.registerFont(TTFont('Inter-Bold', inter_bold_path))
+        FONT_FAMILY = 'Inter'
+        FONT_FAMILY_BOLD = 'Inter-Bold'
+    except:
+        FONT_FAMILY = 'Helvetica'
+        FONT_FAMILY_BOLD = 'Helvetica-Bold'
+
+    # --- 2. Definição de Cores e Estilos ---
+    primary_color = HexColor('#0d6efd')
+    text_color = HexColor('#212529')
+    muted_color = HexColor('#6c757d')
+    background_color = HexColor('#f8f9fa')
+
     styles = getSampleStyleSheet()
+    # Usando nomes únicos para os novos estilos para evitar conflito.
+    styles.add(ParagraphStyle(name='CustomTitle', fontName=FONT_FAMILY_BOLD, fontSize=22, leading=26, textColor=text_color, spaceAfter=4))
+    styles.add(ParagraphStyle(name='CustomSubtitle', fontName=FONT_FAMILY, fontSize=11, leading=14, textColor=muted_color, spaceAfter=24))
+    styles.add(ParagraphStyle(name='CustomTableHeader', fontName=FONT_FAMILY_BOLD, fontSize=9, textColor=primary_color, alignment=TA_CENTER))
+    styles.add(ParagraphStyle(name='CustomTableCell', fontName=FONT_FAMILY, fontSize=9, textColor=text_color, alignment=TA_CENTER))
+    styles.add(ParagraphStyle(name='CustomTableCellLeft', fontName=FONT_FAMILY, fontSize=9, textColor=text_color, alignment=TA_LEFT))
 
-    title_style = styles['h1']
-    title_style.alignment = TA_LEFT
-    story.append(Paragraph(f"Lista de compra - {stock.name}", title_style))
-    
-    date_str = date.today().strftime('%d/%m/%Y')
-    date_style = styles['Normal']
-    date_style.alignment = TA_LEFT
-    story.append(Paragraph(f"Data de geração: {date_str}", date_style))
-    
-    story.append(Spacer(1, 0.4*inch))
+    # --- 3. Construção do Conteúdo do PDF ---
+    story = []
 
-    table_data = [
-        ['Nome do item', 'Quantidade\ndisponível', 'Quantidade\nmáxima', 'Quantidade\nFaltante']
+    # Cabeçalho
+    story.append(Paragraph(stock.name, styles['CustomTitle']))
+    
+    # CORREÇÃO: Define o locale para português para formatar a data corretamente
+    try:
+        # Tenta o padrão para Linux/macOS
+        locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+    except locale.Error:
+        try:
+            # Tenta o padrão para Windows
+            locale.setlocale(locale.LC_TIME, 'Portuguese_Brazil.1252')
+        except locale.Error:
+            # Fallback caso nenhum locale funcione
+            pass
+            
+    date_str = date.today().strftime('%d de %B de %Y')
+    story.append(Paragraph(f"Relatório gerado em {date_str}", styles['CustomSubtitle']))
+
+    # Preparação dos dados da tabela
+    items = stock.items.all().order_by('name')
+    
+    header = [
+        Paragraph('Item', styles['CustomTableHeader']),
+        Paragraph('Disponível', styles['CustomTableHeader']),
+        Paragraph('Necessário', styles['CustomTableHeader']),
+        Paragraph('Faltante', styles['CustomTableHeader']),
+        Paragraph('Progresso', styles['CustomTableHeader']),
     ]
+    table_data = [header]
+
     for item in items:
         missing_quantity = item.quantity_needed - item.quantity_available
-        missing_display = str(missing_quantity) if missing_quantity > 0 else '-'
-        table_data.append([
-            item.name,
-            str(item.quantity_available),
-            str(item.quantity_needed),
-            missing_display
-        ])
-
-    pdf_table = Table(table_data)
-    
-    style = TableStyle([
-        # Estilos do cabeçalho
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#EEEEEE')),
-        ('TEXTCOLOR',(0,0),(-1,0),colors.black),
-        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        missing_display = str(missing_quantity) if missing_quantity > 0 else '—'
+        percentage = f"{item.get_percentage()}%" # Usa o método do modelo
         
-        # Linhas horizontais
-        ('LINEBELOW', (0,0), (-1,0), 1, colors.black),
-        ('LINEBELOW', (0,1), (-1,-1), 0.5, colors.lightgrey),
+        row = [
+            Paragraph(item.name, styles['CustomTableCellLeft']),
+            Paragraph(str(item.quantity_available), styles['CustomTableCell']),
+            Paragraph(str(item.quantity_needed), styles['CustomTableCell']),
+            Paragraph(missing_display, styles['CustomTableCell']),
+            Paragraph(percentage, styles['CustomTableCell']),
+        ]
+        table_data.append(row)
 
-        # Padding (espaçamento interno)
-        ('TOPPADDING', (0,0), (-1,-1), 8),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-    ])
-    
-    pdf_table.setStyle(style)
-    story.append(pdf_table)
-    
-    story.append(Spacer(0.5, 0.5*inch))
+    # Estilo da Tabela
+    if items:
+        pdf_table = Table(table_data, colWidths=[2.5*inch, 0.9*inch, 0.9*inch, 0.9*inch, 1.1*inch])
+        
+        table_style = TableStyle([
+            # Estilos gerais
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+
+            # Estilos do cabeçalho
+            ('LINEBELOW', (0, 0), (-1, 0), 1.5, primary_color),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+
+            # Estilos das linhas de dados
+            ('LINEBELOW', (0, 1), (-1, -1), 0.5, muted_color),
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'), # Centraliza colunas numéricas
+        ])
+        
+        # Efeito "Zebra" (linhas alternadas)
+        for i in range(1, len(table_data)):
+            if i % 2 == 0:
+                table_style.add('BACKGROUND', (0, i), (-1, i), background_color)
+
+        pdf_table.setStyle(table_style)
+        story.append(pdf_table)
+    else:
+        story.append(Paragraph("Este estoque não possui nenhum item.", styles['Normal']))
+
+    # Adiciona o logo no final do documento
+    story.append(Spacer(1, 0.5*inch))
     
     logo_path = find('flowstock/resources/img/logo.jpg') 
     if logo_path:
-        logo = Image(logo_path, width=4*inch, height=1.5*inch)
-        logo.hAlign = 'CENTER'
+        # Usando um tamanho mais sutil para o logo
+        logo = Image(logo_path, width=2*inch, height=0.75*inch, hAlign='CENTER')
         story.append(logo)
 
+    # --- 4. Geração do PDF ---
     doc.build(story)
     return response
+
 
 
 @login_required
