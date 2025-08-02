@@ -60,9 +60,9 @@ def stock_list(request):
             base_queryset = Stock.objects.filter(owner=request.user)
 
         if search_query:
-            stock_queryset = base_queryset.filter(name__icontains=search_query).distinct().order_by('name')
+            stock_queryset = base_queryset.filter(name__icontains=search_query).distinct().order_by('-created_at')
         else:
-            stock_queryset = base_queryset.distinct().order_by('name')
+            stock_queryset = base_queryset.distinct().order_by('-created_at')
 
         paginator = Paginator(stock_queryset, 8)
         page_number = request.GET.get('page')
