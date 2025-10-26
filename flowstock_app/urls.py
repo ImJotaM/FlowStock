@@ -13,6 +13,7 @@ urlpatterns = [
     path('stock/<int:stock_id>/share/', views.share_stock, name='share-stock'),
     path('groups/create/', views.create_group, name='group-create'),
     path('groups/<int:group_id>/delete/', views.delete_group, name='group-delete'),
+    path('groups/<int:group_id>/update/', views.update_group, name='group-update'),
     path('groups/<int:group_id>/member/add/', views.add_member_to_group, name='group-add-member'),
     path('groups/<int:group_id>/member/remove/<int:user_id>', views.remove_member_from_group, name='group-remove-member'),
     path('subgroup/<int:subgroup_id>/delete/', views.delete_subgroup, name='subgroup-delete'),

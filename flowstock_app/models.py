@@ -39,8 +39,10 @@ class StockGroupMembership(models.Model):
 class Stock(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_stocks')
     name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, default="")
     members = models.ManyToManyField(User, through='StockMembership', related_name='shared_stocks', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     shared_with_groups = models.ManyToManyField('UserGroup', through='StockGroupMembership', related_name='stocks_shared_with', blank=True)
 
@@ -89,11 +91,21 @@ class Stock(models.Model):
         return permissions
     
 class Item(models.Model):
+    ITEM_TYPE_CHOICES = [
+        ('A definir', 'A definir'),
+        ('Alimento', 'Alimento'),
+        ('Eletrônico', 'Eletrônico'),
+        ('Acessório', 'Acessório'),
+        ('Medicamento', 'Medicamento'),
+        ('Outro', 'Outro'),
+    ]
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name='items')
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     name = models.CharField(max_length=100)
     quantity_needed = models.PositiveIntegerField(default=1)
     quantity_available = models.PositiveIntegerField(default=1)
+    item_type = models.CharField(max_length=20, choices=ITEM_TYPE_CHOICES, default='A definir')
     
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -109,6 +121,11 @@ class Item(models.Model):
         percentage = min(ratio * 100, 100)
         
         return int(percentage)
+    
+    @property
+    def total_price(self):
+        total = float(self.price) * self.quantity_available
+        return "{:.2f}".format(total).replace('.', ',')
     
     def __str__(self):
         return self.name
