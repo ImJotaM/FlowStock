@@ -1,53 +1,362 @@
 {% load static %}
 
 <style>
+    .group-card .card-body {
+        font-size: 1.1rem; 
+    }
+    
     .group-card .card-header, .group-card .card-footer {
         background-color: #f8f9fa;
     }
+    
+    .group-card .group-name {
+        font-size: 1.6rem !important;
+        font-weight: 700 !important;
+    }
+    
+    .group-card .member-count {
+        font-size: 1.1rem !important; 
+    }
+    
+    .group-card .section-title {
+        font-size: 1.2rem !important; 
+        font-weight: 600 !important;
+    }
+    
+    .group-card h6 {
+        font-size: 1.1rem; 
+    }
+    
+    .group-card .small {
+        font-size: 1rem !important; 
+    }
+    
     .tag-badge {
-        font-size: 0.8rem;
+        font-size: 0.95rem; 
         font-weight: 500;
         padding: 0.3em 0.6em;
     }
+    
     .btn-close-tag {
-        font-size: 0.6em;
+        font-size: 0.75em; 
         margin-left: 0.4em;
+    }
+    
+    .stat-card .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+    }
+    
+    .icon-wrapper {
+        background-color: #e9f2ff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .badge-admin {
+        background-color: #fff0b3 !important;
+        color: #974F0C !important;
+        font-weight: 500;
+    }
+    
+    .badge-member {
+        background-color: #e9f2ff !important;
+        color: #0d6efd !important;
+        font-weight: 500;
+    }
+    
+    .badge-viewer {
+        background-color: #f1f2f4 !important;
+        color: #5e6c84 !important;
+        font-weight: 500;
+    }
+    
+    .subgroup-tag {
+        background-color: #f1f2f4;
+        color: #5e6c84;
+        font-size: 0.95rem;
+    }
+    
+    .card-add {
+        border: 2px dashed #dfe1e6;
+        background-color: transparent;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .card-add:hover {
+        border-color: #0d6efd;
+        background-color: #f7f8f9;
+    }
+    
+    .card-add .icon-add {
+        width: 40px;
+        height: 40px;
+        background-color: #e9f2ff;
+        color: #0d6efd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .create-group-card {
+        grid-column: 1 / -1;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .group-name-edit {
+        display: none;
+    }
+
+    .group-name-display {
+        display: block;
+    }
+
+    .char-limit-alert {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+
+    /* Ícones maiores para editar e excluir */
+    .card-actions .btn {
+        font-size: 1.1rem !important;
+        padding: 0.4rem 0.5rem !important;
+    }
+
+    .card-actions .bi-pencil-square,
+    .card-actions .bi-trash {
+        font-size: 1.1rem !important;
+    }
+
+    /* Estilos para botões de ação com hover azul */
+    .btn-action-custom {
+        color: #44546f !important;
+        background-color: transparent;
+        border-color: #c1c7d0;
+        transition: all 0.2s ease-in-out;
+        font-weight: 500;
+        min-width: 192px;
+    }
+
+    .btn-action-custom:hover {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    /* Estilos para collapse sections */
+    .collapse-section {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 12px;
+    }
+
+    .card-actions {
+        opacity: 1;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .group-card:hover .card-actions {
+        opacity: 1;
     }
 </style>
 
 <div class="p-3 p-md-4">
-    <div class="row g-4">
+    <!-- Cabeçalho -->
+    <header class="mb-4 main-header">
+        <h2 class="fw-bold">Grupos</h2>
+        <p class="text-muted mb-0">Gerencie grupos de trabalho e membros</p>
+    </header>
 
-        <div class="col-lg-7">
+    <!-- Estatísticas -->
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-wrapper me-3" style="background-color: #E6FCFF;">
+                        <i class="bi bi-people-fill fs-4" style="color: #00B8D9;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted">Total de Grupos</small>
+                        <h5 class="fw-bold mb-0">{{ groups|length }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-wrapper me-3" style="background-color: #E3FCEF;">
+                        <i class="bi bi-person-fill fs-4" style="color: #36B37E;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted">Total de Membros</small>
+                        <h5 class="fw-bold mb-0">{{ members_count }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card">
+                <div class="card-body d-flex align-items-center">
+                     <div class="icon-wrapper me-3" style="background-color: #E3FCEF;">
+                        <i class="bi bi-shield-check fs-4" style="color: #36B37E;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted">Administradores</small>
+                        <h5 class="fw-bold mb-0">{{ admin_count }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card stat-card">
+                 <div class="card-body d-flex align-items-center">
+                     <div class="icon-wrapper me-3" style="background-color: #FFFAE6;">
+                        <i class="bi bi-diagram-3-fill fs-4" style="color: #FFAB00;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted">Subgrupos</small>
+                        <h5 class="fw-bold mb-0">{{ subgroups_count }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card Criar Novo Grupo - Ocupa toda a largura -->
+        <div class="col-12 create-group-card">
+            <a href="#" class="card card-add text-decoration-none text-center" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    <div class="icon-add mb-2">
+                        <i class="bi bi-plus-lg fs-5"></i>
+                    </div>
+                    <h6 class="fw-semibold text-primary mb-1">Criar Novo Grupo</h6>
+                    <p class="text-muted small mb-0">Clique para criar um novo grupo de trabalho</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Lista de Grupos -->
+    <div class="row g-4">
+        <div class="col-12">
             <div class="d-flex flex-column gap-4">
                 {% for group in groups %}
-                    <div class="card group-card border-0 shadow-sm" style="border-radius: 0.75rem;">
-                        <div class="card-header d-flex justify-content-between align-items-center py-3">
-                            <h5 class="mb-0 fw-bold">{{ group.name }}</h5>
-                            {% if group.owner == request.user %}
-                                <form method="post" action="{% url 'group-delete' group.id %}" onsubmit="return confirm('Tem certeza que deseja excluir o grupo {{ group.name }}?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Grupo"><i class="bi bi-trash"></i></button>
-                                </form>
-                            {% endif %}
-                        </div>
+                    <div class="card group-card">
+                        <div class="card-body p-4">
+                            <!-- Cabeçalho do grupo com ícones de edição e exclusão -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-grow-1">
+                                    <!-- Nome do grupo - Modo Visualização -->
+                                    <div class="group-name-display" id="group-name-display-{{ group.id }}">
+                                        <h5 class="fw-bold mb-1 group-name">{{ group.name }}</h5>
+                                        <small class="text-muted member-count">{{ group.members.count }} membros</small>
+                                    </div>
+                                    
+                                    <!-- Nome do grupo - Modo Edição -->
+                                    <div class="group-name-edit" id="group-name-edit-{{ group.id }}">
+                                        <form method="post" action="{% url 'group-update' group.id %}" class="d-flex align-items-center gap-2">
+                                            {% csrf_token %}
+                                            <input type="text" class="form-control form-control-sm" name="name" value="{{ group.name }}" placeholder="Nome do grupo" maxlength="20" required style="max-width: 300px;">
+                                            <div class="d-flex gap-1">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary cancel-edit-group" data-group-id="{{ group.id }}">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <div class="char-limit-alert">Máximo de 20 caracteres</div>
+                                    </div>
+                                </div>
+                                <div class="card-actions d-flex align-items-center ms-2">
+                                    <!-- Ícone de lápis para editar (maior) -->
+                                    {% if group.owner == request.user %}
+                                        <button class="btn btn-sm text-muted p-1 edit-group-btn" data-group-id="{{ group.id }}" title="Editar Grupo">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    {% endif %}
+                                    <!-- Ícone de lixeira para excluir (maior) -->
+                                    {% if group.owner == request.user %}
+                                        <form method="post" action="{% url 'group-delete' group.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm text-muted p-1 delete-group-btn" onclick="return confirm('Tem certeza que deseja excluir o grupo {{ group.name }}?');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Membros -->
+                            <div class="mt-4">
+                                <div class="section-header">
+                                    <h6 class="fw-semibold section-title text-uppercase text-muted mb-0">Membros</h6>
+                                    <!-- Botão para adicionar membro com estilo personalizado -->
+                                    {% if group.owner == request.user %}
+                                        <button class="btn btn-sm btn-action-custom" type="button" data-bs-toggle="collapse" data-bs-target="#addMemberSection-{{ group.id }}">
+                                            <i class="bi bi-person-plus me-1"></i>Adicionar Membro
+                                        </button>
+                                    {% endif %}
+                                </div>
 
-                        <div class="card-body">
-                            <h6 class="text-muted mb-3">MEMBROS ({{ group.members.count }})</h6>
-                            <ul class="list-group list-group-flush">
+                                <!-- Seção para Adicionar Membro (Collapse) -->
+                                {% if group.owner == request.user %}
+                                <div class="collapse" id="addMemberSection-{{ group.id }}">
+                                    <div class="collapse-section">
+                                        <h6 class="fw-semibold small text-uppercase text-muted mb-2">Adicionar Novo Membro</h6>
+                                        <form method="post" action="{% url 'group-add-member' group.id %}">
+                                            {% csrf_token %}
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-5">
+                                                    <input type="text" name="identifier" class="form-control form-control-sm" placeholder="Digite o e-mail ou nome de usuário" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select name="role" class="form-select form-select-sm" required>
+                                                        <option value="admin">Administrador</option>
+                                                        <option value="editor">Membro</option>
+                                                        <option value="viewer">Visualizador</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                        Adicionar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Lista de Membros -->
                                 {% for member in group.members.all %}
-                                    <li class="list-group-item px-0 py-3">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <div class="fw-bold">{{ member.username }}</div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="d-flex align-items-center flex-grow-1">
+                                            <i class="bi bi-person-circle me-3 fs-5 text-muted"></i>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-medium">{{ member.username }}</div>
                                                 <div class="small text-muted">{{ member.email }}</div>
-                                                <div class="mt-2 d-flex flex-wrap gap-1">
+                                                <div class="mt-1 d-flex flex-wrap gap-1">
                                                     {% for subgroup in group.subgroups.all %}
                                                         {% if member in subgroup.members.all %}
-                                                            <span class="badge rounded-pill bg-light text-dark border d-flex align-items-center tag-badge">
+                                                            <span class="badge rounded-pill subgroup-tag d-flex align-items-center">
                                                                 {{ subgroup.name }}
                                                                 {% if group.owner == request.user %}
-                                                                    <form method="post" action="{% url 'member-unassign-subgroup' %}" class="d-inline">
+                                                                    <form method="post" action="{% url 'member-unassign-subgroup' %}" class="d-inline ms-1">
                                                                         {% csrf_token %}
                                                                         <input type="hidden" name="member_id" value="{{ member.id }}">
                                                                         <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
@@ -59,106 +368,209 @@
                                                     {% endfor %}
                                                 </div>
                                             </div>
-                                            {% if group.owner == request.user %}
-                                                <div class="d-flex align-items-center gap-2">
+                                        </div>
+                                        {% if group.owner == request.user %}
+                                            <div class="d-flex align-items-center gap-2 ms-3">
+                                                {% if group.subgroups.all %}
                                                     <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Atribuir Subgrupo"><i class="bi bi-plus"></i></button>
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle btn-action-custom" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 150px;">
+                                                            Atribuir Subgrupo
+                                                        </button>
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             {% for subgroup in group.subgroups.all %}
                                                                 {% if member not in subgroup.members.all %}
                                                                     <li>
-                                                                        <form method="post" action="{% url 'member-assign-subgroup' group_id=group.id member_id=member.id %}" class="dropdown-item p-0">
+                                                                        <form method="post" action="{% url 'member-assign-subgroup' group_id=group.id member_id=member.id %}">
                                                                             {% csrf_token %}
                                                                             <input type="hidden" name="subgroup_id" value="{{ subgroup.id }}">
-                                                                            <button type="submit" class="btn btn-link text-decoration-none text-dark w-100 text-start ps-3">{{ subgroup.name }}</button>
+                                                                            <button type="submit" class="dropdown-item">
+                                                                                {{ subgroup.name }}
+                                                                            </button>
                                                                         </form>
                                                                     </li>
                                                                 {% endif %}
                                                             {% endfor %}
                                                         </ul>
                                                     </div>
-                                                    <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
+                                                {% endif %}
+                                                <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Membro">
+                                                        <i class="bi bi-person-x"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% empty %}
+                                    <div class="text-muted small">Nenhum membro</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Subgrupos -->
+                            <div class="mt-4">
+                                <div class="section-header">
+                                    <h6 class="fw-semibold section-title text-uppercase text-muted mb-0">Subgrupos</h6>
+                                    <!-- Botão Gerenciar Subgrupos com estilo personalizado e ícone de engrenagem -->
+                                    {% if group.owner == request.user %}
+                                    <button class="btn btn-sm btn-action-custom" type="button" data-bs-toggle="collapse" data-bs-target="#manageSubgroups-{{ group.id }}">
+                                        <i class="bi bi-gear me-1"></i>Gerenciar Subgrupos
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    {% for subgroup in group.subgroups.all %}
+                                        <span class="badge rounded-pill bg-secondary d-flex align-items-center tag-badge">
+                                            {{ subgroup.name }}
+                                        </span>
+                                    {% empty %}
+                                        <small class="text-muted">Nenhum subgrupo</small>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Gerenciar Subgrupos (Collapse) -->
+                                {% if group.owner == request.user %}
+                                <div class="collapse" id="manageSubgroups-{{ group.id }}">
+                                    <div class="collapse-section">
+                                        <h6 class="fw-semibold small text-uppercase text-muted mb-2">Adicionar Subgrupo</h6>
+                                        <form method="post" action="{% url 'group-create' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="parent" value="{{ group.id }}">
+                                            <div class="input-group mb-2">
+                                                <input type="text" name="name" class="form-control" placeholder="Nome do novo subgrupo" id="subgroup-name-{{ group.id }}" required>
+                                                <button type="submit" class="btn btn-primary" id="add-subgroup-btn-{{ group.id }}" disabled>
+                                                    Adicionar
+                                                </button>
+                                            </div>
+                                        </form>
+                                        
+                                        {% if group.subgroups.all %}
+                                        <hr class="my-2">
+                                        <h6 class="fw-semibold small text-uppercase text-muted mb-2">Subgrupos Existentes</h6>
+                                        <div class="vstack gap-2">
+                                            {% for subgroup in group.subgroups.all %}
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>{{ subgroup.name }}</span>
+                                                    <form method="post" action="{% url 'subgroup-delete' subgroup.id %}" class="d-inline">
                                                         {% csrf_token %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Membro"><i class="bi bi-person-x"></i></button>
+                                                        <button type="submit" class="btn btn-link text-danger p-0" title="Excluir Subgrupo" onclick="return confirm('Tem certeza que deseja excluir o subgrupo {{ subgroup.name }}?')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
                                                     </form>
                                                 </div>
-                                            {% endif %}
+                                            {% endfor %}
                                         </div>
-                                    </li>
-                                {% empty %}
-                                    <li class="list-group-item px-0 text-muted">Nenhum membro neste grupo ainda.</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-
-                        {% if group.owner == request.user %}
-                            <div class="card-footer p-3">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold">ADICIONAR MEMBRO</label>
-                                    <form method="post" action="{% url 'group-add-member' group.id %}">
-                                        {% csrf_token %}
-                                        <div class="input-group">
-                                            <input type="text" name="identifier" class="form-control" placeholder="Usuário ou email" required>
-                                            <button class="btn btn-outline-primary" type="submit">Adicionar</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div>
-                                    <label class="form-label small fw-bold">GERENCIAR SUBGRUPOS (TAGS)</label>
-                                    <div class="d-flex flex-wrap gap-2 mb-2">
-                                        {% for subgroup in group.subgroups.all %}
-                                            <span class="badge rounded-pill bg-secondary d-flex align-items-center tag-badge">
-                                                {{ subgroup.name }}
-                                                <form method="post" action="{% url 'subgroup-delete' subgroup.id %}" class="ms-1">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn-close btn-close-white btn-close-tag" aria-label="Excluir Subgrupo"></button>
-                                                </form>
-                                            </span>
-                                        {% empty %}
-                                            <small class="text-muted">Nenhum subgrupo criado.</small>
-                                        {% endfor %}
+                                        {% endif %}
                                     </div>
                                 </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
                 {% empty %}
                     <div class="text-center p-5">
                         <i class="bi bi-people-fill" style="font-size: 4rem; color: #e9ecef;"></i>
                         <h4 class="mt-3 fw-bold">Nenhum grupo por aqui</h4>
-                        <p class="text-muted">Use o formulário ao lado para criar seu primeiro grupo e organizar seus estoques.</p>
+                        <p class="text-muted">Clique em "Criar Novo Grupo" para começar</p>
                     </div>
                 {% endfor %}
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm sticky-top" style="top: 110px; border-radius: 0.75rem;">
-                <div class="card-header bg-transparent py-3">
-                    <h5 class="mb-0 fw-bold">Criar Novo Grupo</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'group-create' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Nome do Grupo</label>
-                            <input type="text" name="name" class="form-control" required placeholder="Ex: Empresa">
-                        </div>
-                        <div class="mb-3">
-                            <label for="parent" class="form-label">Subgrupo de (Opcional)</label>
-                            <select name="parent" class="form-select">
-                                <option value="">Nenhum (será um grupo principal)</option>
-                                {% for g in groups %}
-                                    <option value="{{ g.id }}">{{ g.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-plus-circle me-1"></i> Criar Grupo
-                        </button>
-                    </form>
-                </div>
+<!-- Modal para Criar Grupo -->
+<div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">Criar Novo Grupo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'group-create' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nome do Grupo</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Ex: Empresa">
+                    </div>
+                    <div class="mb-3">
+                        <label for="parent" class="form-label">Subgrupo de (Opcional)</label>
+                        <select name="parent" class="form-select">
+                            <option value="">Nenhum (Grupo principal)</option>
+                            {% for g in groups %}
+                                <option value="{{ g.id }}">{{ g.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Criar Grupo</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Habilitar/desabilitar botão de adicionar subgrupo baseado no input
+        {% for group in groups %}
+            {% if group.owner == request.user %}
+                const subgroupInput{{ group.id }} = document.getElementById('subgroup-name-{{ group.id }}');
+                const subgroupBtn{{ group.id }} = document.getElementById('add-subgroup-btn-{{ group.id }}');
+                
+                if (subgroupInput{{ group.id }} && subgroupBtn{{ group.id }}) {
+                    subgroupInput{{ group.id }}.addEventListener('input', function() {
+                        subgroupBtn{{ group.id }}.disabled = !this.value.trim();
+                        subgroupBtn{{ group.id }}.classList.toggle('btn-light', !this.value.trim());
+                        subgroupBtn{{ group.id }}.classList.toggle('btn-primary', this.value.trim());
+                    });
+                }
+            {% endif %}
+        {% endfor %}
+
+        // Lógica para mostrar/ocultar edição do nome do grupo
+        document.querySelectorAll('.edit-group-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const groupId = this.getAttribute('data-group-id');
+                
+                // Oculta display e mostra edição
+                document.getElementById(`group-name-display-${groupId}`).style.display = 'none';
+                document.getElementById(`group-name-edit-${groupId}`).style.display = 'block';
+                
+                // Foca no campo de nome
+                const nameInput = document.querySelector(`#group-name-edit-${groupId} input[name="name"]`);
+                nameInput.focus();
+                nameInput.select();
+            });
+        });
+
+        document.querySelectorAll('.cancel-edit-group').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const groupId = this.getAttribute('data-group-id');
+                
+                // Mostra display e oculta edição
+                document.getElementById(`group-name-display-${groupId}`).style.display = 'block';
+                document.getElementById(`group-name-edit-${groupId}`).style.display = 'none';
+            });
+        });
+
+        // Confirmação para exclusão de grupo
+        document.querySelectorAll('.delete-group-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Tem certeza que deseja excluir este grupo?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+    });
+</script>

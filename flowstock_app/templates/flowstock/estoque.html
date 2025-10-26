@@ -17,29 +17,116 @@
 
     <style>
         body {
-            background-color: #f4f5f7;
+            background-color: #fafbfc;
             font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+        .main-header .fw-bold {
+            color: #172b4d;
+        }
+        .card {
+            border: 1px solid #dfe1e6;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.2s ease-in-out;
+        }
+        .item-card {
+            height: auto;
+            min-height: 260px;
+            overflow: hidden;
+        }
+        .item-card.editing {
+            height: auto;
+            min-height: 260px;
+        }
+        .item-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            border-color: #c1c7d0;
+        }
+        .icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+        .item-card .badge-disponivel {
+            background-color: #e3fcef !important;
+            color: #006644 !important;
+            font-weight: 500;
+        }
+        .item-card .badge-baixo {
+            background-color: #fff0b3 !important;
+            color: #974F0C !important;
+            font-weight: 500;
+        }
+        .item-card .badge-indisponivel {
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+            border: 1px solid #dee2e6 !important;
+            font-weight: 500;
+        }
+        .item-card .progress {
+            height: 8px;
+        }
+        .card-add {
+            border: 2px dashed #dfe1e6;
+            background-color: transparent;
+            cursor: pointer;
+            height: 260px;
+        }
+        .card-add:hover {
+            border-color: #0d6efd;
+            background-color: #f7f8f9;
+        }
+        .card-add .icon-add {
+            width: 40px;
+            height: 40px;
+            background-color: #e9f2ff;
+            color: #0d6efd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-outline-secondary {
+            color: #44546f;
+            border-color: #c1c7d0;
+            transition: all 0.3s ease-in-out !important;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #0d6efd !important;
+            color: #ffffff !important;
+            border-color: #0d6efd !important;
+            transform: translateY(-1px);
+        }
+        .item-edit-form {
+            display: none;
         }
         .progress {
             height: 8px;
         }
-        .card-add-item {
-            border-style: dashed !important;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        .card-body.p-3 {
+            padding: 1.25rem !important;
         }
-        .card-add-item:hover {
-            background-color: #f8f9fa;
-            border-color: #0d6efd !important;
+        .item-name {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
-		.btn-clean {
-			background-color: #fff;
-			border: 1px solid #dee2e6;
-			transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
-		}
-		.btn-clean:hover {
-			background-color: #f8f9fa;
-			border-color: #d3d6d8;
-		}
+        .item-details {
+            margin-bottom: 1.5rem;
+        }
+        .availability-section {
+            padding: 12px 0;
+            border-top: 1px solid #f1f1f1;
+            border-bottom: 1px solid #f1f1f1;
+            margin: 1.5rem 0;
+        }
+        .quantity-section {
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
@@ -47,72 +134,183 @@
     {% include 'flowstock/partials/_navbar.html' %}
 
     <div class="container py-5">
-        <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
+        <header class="d-flex justify-content-between align-items-center mb-4 main-header">
             <div class="d-flex align-items-center">
-                <a href="javascript:history.back()" class="btn bg-white border me-3">
+                <a href="javascript:history.back()" class="btn btn-light me-3">
                     <i class="bi bi-arrow-left"></i>
                 </a>
-                <h2 class="mb-0 fw-bold">{{ stock.name }}</h2>
+                <div>
+                    <h2 class="fw-bold mb-0">{{ stock.name }}</h2>
+                    <p class="text-muted mb-0">{{ items.count }} itens no estoque</p>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#historyModal">
-					<i class="bi bi-clock-history me-2"></i>Histórico
-				</button>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#historyModal">
+                    <i class="bi bi-clock-history me-2"></i>Histórico
+                </button>
 
-				{% if can_share %}
-				<button type="button" class="btn btn-clean text-dark fw-medium" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
-					<i class="bi bi-person-plus me-2"></i>Compartilhar
-				</button>
-				{% endif %}
+                {% if can_share %}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal-{{ stock.id }}">
+                    <i class="bi bi-share me-2"></i>Compartilhar
+                </button>
+                {% endif %}
 
-				<a class="btn btn-clean text-dark fw-medium" href="{% url 'generate-pdf-stock' stock.id %}">
-					<i class="bi bi-printer me-2"></i>Imprimir
-				</a>
-			</div>
+                <a class="btn btn-outline-secondary" href="{% url 'generate-pdf-stock' stock.id %}">
+                    <i class="bi bi-printer me-2"></i>Imprimir
+                </a>
+            </div>
+        </header>
+
+        <!-- Seção de Métricas -->
+        <div class="row g-4 my-4">
+            <div class="col-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-wrapper me-3" style="background-color: #E6FCFF;">
+                            <i class="bi bi-box-seam-fill fs-5" style="color: #00B8D9;"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Total de Itens</small>
+                            <h5 class="fw-bold mb-0">{{ items.count|default:0 }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-wrapper me-3" style="background-color: #E3FCEF;">
+                            <i class="bi bi-check2-circle fs-5" style="color: #36B37E;"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Disponíveis</small>
+                            <h5 class="fw-bold mb-0">{{ available_items|default:0 }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card">
+                     <div class="card-body d-flex align-items-center">
+                         <div class="icon-wrapper me-3" style="background-color: #FFFAE6;">
+                            <i class="bi bi-exclamation-triangle-fill fs-5" style="color: #FFAB00;"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Estoque Baixo</small>
+                            <h5 class="fw-bold mb-0">{{ low_stock_items|default:0 }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card">
+                     <div class="card-body d-flex align-items-center">
+                         <div class="icon-wrapper me-3" style="background-color: #EAE6FF;">
+                            <i class="bi bi-wallet2 fs-5" style="color: #6554C0;"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Valor Total</small>
+                            <h5 class="fw-bold mb-0" id="total-value">R$ {{ total_value|default:"0,00" }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="row g-4">
             {% for item in items %}
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm rounded-4">
-                        <div class="card-body d-flex flex-column">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card item-card" id="card-{{ item.id }}">
+                        <div class="card-body d-flex flex-column p-3">
                             
+                            <!-- Modo Visualização -->
                             <div id="item-display-{{ item.id }}">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <span class="fw-bold fs-5 item-name">{{ item.name }}</span>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold item-name">{{ item.name }}</h6>
                                     {% if can_edit %}
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-link text-secondary p-0 item-edit-btn" title="Editar" data-item-id="{{ item.id }}"><i class="bi bi-pencil-fill"></i></button>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn btn-sm btn-link text-secondary p-0 item-edit-btn" title="Editar" data-item-id="{{ item.id }}">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
                                         <form method="post" action="{% url 'stock_detail' stock.id %}" class="d-inline">
                                             {% csrf_token %}
                                             <input type="hidden" name="delete_id" value="{{ item.id }}">
-                                            <button type="submit" class="btn btn-sm btn-link text-dark p-0" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir o item \'{{ item.name }}\'?');"><i class="bi bi-trash-fill"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-link text-dark p-0" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir o item \'{{ item.name }}\'?');">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
                                         </form>
                                     </div>
                                     {% endif %}
                                 </div>
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between small text-muted mb-1">
-                                        <span>Disponível</span>
-                                        <span>{{ item.quantity_available }} / {{ item.quantity_needed }}</span>
+                                
+                                <!-- Tipo e Preço Unitário (TOP) -->
+                                <div class="item-details">
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-muted">Tipo: {{ item.item_type|default:"A definir" }}</small>
+                                        <small class="text-muted">R$ {{ item.price|default:"0,00" }}</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Indicador e Valor Total (CENTRO) -->
+                                <div class="availability-section">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        {% with percentage=item.get_percentage|default:0 %}
+                                        {% if item.quantity_available == 0 %}
+                                        <span class="badge rounded-pill badge-indisponivel px-2 py-1">Indisponível</span>
+                                        {% elif percentage < 50 %}
+                                        <span class="badge rounded-pill badge-baixo px-2 py-1">Baixo</span>
+                                        {% else %}
+                                        <span class="badge rounded-pill badge-disponivel px-2 py-1">Disponível</span>
+                                        {% endif %}
+                                        {% endwith %}
+                                        <h6 class="fw-bold mb-0">R$ {{ item.total_price|default:"0,00" }}</h6>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quantidade e Barra de Progresso (INFERIOR) -->
+                                <div class="quantity-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <small class="text-muted">Quantidade</small>
+                                        <small class="text-muted">{{ item.quantity_available }} / {{ item.quantity_needed }}</small>
                                     </div>
                                     {% with percentage=item.get_percentage|default:0 %}
-                                    <div class="progress rounded-pill">
-                                        <div class="progress-bar" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress" role="progressbar">
+                                        <div class="progress-bar 
+                                            {% if item.quantity_available == 0 %}bg-light
+                                            {% elif percentage < 50 %}bg-warning
+                                            {% else %}bg-primary{% endif %}" 
+                                            style="width: {{ percentage }}%">
+                                        </div>
                                     </div>
                                     {% endwith %}
                                 </div>
                             </div>
 
-                            <form method="post" action="{% url 'stock_detail' stock.id %}" class="d-none item-edit-form h-100" id="item-edit-form-{{ item.id }}">
+                            <!-- Modo Edição -->
+                            <form method="post" action="{% url 'stock_detail' stock.id %}" class="item-edit-form h-100" id="item-edit-form-{{ item.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="update_name" value="{{ item.id }}">
                                 <div class="d-flex flex-column h-100">
                                     <div class="mb-3">
                                         <label class="form-label small">Nome do Item</label>
-                                        <input type="text" name="name" class="form-control" value="{{ item.name }}" required>
+                                        <input type="text" name="name" class="form-control" value="{{ item.name }}" maxlength="15" required>
                                     </div>
-                                    <div class="d-flex gap-2 mb-3">
+                                    <div class="mb-3">
+                                        <label class="form-label small">Tipo</label>
+                                        <select name="item_type" class="form-select">
+                                            <option value="A definir" {% if not item.item_type or item.item_type == "A definir" %}selected{% endif %}>A definir</option>
+                                            <option value="Alimento" {% if item.item_type == "Alimento" %}selected{% endif %}>Alimento</option>
+                                            <option value="Eletrônico" {% if item.item_type == "Eletrônico" %}selected{% endif %}>Eletrônico</option>
+                                            <option value="Acessório" {% if item.item_type == "Acessório" %}selected{% endif %}>Acessório</option>
+                                            <option value="Medicamento" {% if item.item_type == "Medicamento" %}selected{% endif %}>Medicamento</option>
+                                            <option value="Outro" {% if item.item_type == "Outro" %}selected{% endif %}>Outro</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small">Preço Unitário (R$)</label>
+                                        <input type="number" name="price" class="form-control" value="{{ item.price|default:'0.00' }}" step="0.01" min="0" placeholder="0,00" required>
+                                    </div>
+                                    <div class="d-flex gap-2 mb-4">
                                         <div>
                                             <label class="form-label small">Disponível</label>
                                             <input type="number" name="quantity_available" value="{{ item.quantity_available }}" min="0" class="form-control" required>
@@ -134,14 +332,17 @@
             {% endfor %}
 
             {% if can_edit %}
-            <div class="col">
+            <div class="col-md-6 col-lg-3">
                 <form method="post" action="{% url 'stock_detail' stock.id %}" class="h-100">
                     {% csrf_token %}
                     <input type="hidden" name="create" value="true">
-                    <button type="submit" class="btn card h-100 border-2 card-add-item w-100">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
-                            <i class="bi bi-plus-circle-fill fs-1 mb-2"></i>
-                            <span class="fw-bold">Adicionar Novo Item</span>
+                    <button type="submit" class="btn card h-100 card-add w-100 text-decoration-none">
+                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                            <div class="icon-add mb-2">
+                                <i class="bi bi-plus-lg fs-5"></i>
+                            </div>
+                            <h6 class="fw-semibold text-primary">Adicionar Novo Item</h6>
+                            <p class="text-muted small mb-0">Clique para adicionar um novo item ao estoque</p>
                         </div>
                     </button>
                 </form>
@@ -153,10 +354,53 @@
     {% include 'flowstock/partials/_share_modal.html' with stock=stock %}
     {% include 'flowstock/partials/_history_modal.html' with stock=stock history_page=history_page %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'flowstock/JS/estoque/update_item_name.js' %}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para mostrar/ocultar formulário de edição
+            document.querySelectorAll('.item-edit-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const itemId = this.getAttribute('data-item-id');
+                    
+                    // Remove a classe de edição de todos os cards
+                    document.querySelectorAll('.item-card').forEach(card => {
+                        card.classList.remove('editing');
+                    });
+                    
+                    // Adiciona classe de edição apenas ao card atual
+                    document.getElementById(`card-${itemId}`).classList.add('editing');
+                    
+                    // Oculta display e mostra formulário
+                    document.getElementById(`item-display-${itemId}`).style.display = 'none';
+                    document.getElementById(`item-edit-form-${itemId}`).style.display = 'block';
+                });
+            });
+
+            document.querySelectorAll('.cancel-edit').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const itemId = this.getAttribute('data-item-id');
+                    
+                    // Remove a classe de edição do card
+                    document.getElementById(`card-${itemId}`).classList.remove('editing');
+                    
+                    // Mostra display e oculta formulário
+                    document.getElementById(`item-display-${itemId}`).style.display = 'block';
+                    document.getElementById(`item-edit-form-${itemId}`).style.display = 'none';
+                });
+            });
+
+            // Prevenir clique no formulário de edição de propagar para o card
+            document.querySelectorAll('.item-edit-form').forEach(form => {
+                form.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+
+            // Abrir modal de compartilhamento via URL
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('modal') === 'share' && urlParams.get('stock_id') === '{{ stock.id|stringformat:"s" }}') {
                 const shareModalElement = document.getElementById('shareModal-{{ stock.id }}');
@@ -170,6 +414,11 @@
                     cleanUrl.searchParams.delete('stock_id');
                     window.history.replaceState({}, document.title, cleanUrl);
                 }
+            }
+
+            // Formatação de preços
+            function formatPrice(price) {
+                return 'R$ ' + parseFloat(price).toFixed(2).replace('.', ',');
             }
         });
     </script>

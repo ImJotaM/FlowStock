@@ -13,6 +13,8 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from .forms import ShareStockForm
 from urllib.parse import urlparse, urlunparse, urlencode, parse_qs
+from decimal import Decimal, InvalidOperation
+from django.utils import timezone
 import locale
 
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
@@ -41,7 +43,6 @@ def stock_list(request):
     }
     
     if view_filter == 'groups':
-        
         groups_qs = UserGroup.objects.filter(
             Q(owner=request.user) | Q(members=request.user),
             parent=None
@@ -51,8 +52,22 @@ def stock_list(request):
         if search_query:
             groups_qs = groups_qs.filter(name__icontains=search_query)
 
-        context['groups'] = groups_qs.prefetch_related('members', 'subgroups__members')
-        context['search_query'] = search_query
+        groups_qs = UserGroup.objects.filter(
+            Q(owner=request.user) | Q(members=request.user),
+            parent=None
+        ).distinct()
+
+        admin_count = UserGroup.objects.filter(owner=request.user, parent=None).count()
+
+        subgroups_count = UserGroup.objects.filter(parent__in=groups_qs).count()
+
+        members_count = sum(group.members.count() for group in groups_qs)
+
+        context['groups'] = groups_qs
+        context['admin_count'] = admin_count
+        context['subgroups_count'] = subgroups_count
+        context['members_count'] = members_count
+
     else: 
         if view_filter == 'shared':
             base_queryset = Stock.objects.filter(members=request.user).exclude(owner=request.user)
@@ -64,7 +79,13 @@ def stock_list(request):
         else:
             stock_queryset = base_queryset.distinct().order_by('-created_at')
 
-        paginator = Paginator(stock_queryset, 8)
+        stocks_with_values = []
+        for stock in stock_queryset:
+            total_value = sum(float(item.price) * item.quantity_available for item in stock.items.all())
+            stock.total_value = f"{total_value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+            stocks_with_values.append(stock)
+
+        paginator = Paginator(stocks_with_values, 8)
         page_number = request.GET.get('page')
         stocks_page = paginator.get_page(page_number)
 
@@ -104,9 +125,12 @@ def update_stock(request, stock_id):
 
     if request.method == 'POST':
         new_name = request.POST.get('name')
+        new_description = request.POST.get('description', '')
         if new_name:
             stock.name = new_name
-            stock.save()
+        stock.description = new_description
+        stock.updated_at = timezone.now()  
+        stock.save()
 
         view_on_page = request.POST.get('view', 'my_stocks')
 
@@ -156,7 +180,7 @@ def stock_detail(request, stock_id):
         if 'create' in request.POST:
             count = Item.objects.filter(stock=stock).count()
             item_name = f"Item #{count + 1}"    
-            new_item = Item.objects.create(stock=stock, name=item_name)
+            new_item = Item.objects.create(stock=stock, name=item_name, item_type='A definir')
             
             History.objects.create(
                 stock=stock,
@@ -166,6 +190,9 @@ def stock_detail(request, stock_id):
                 item_name_snapshot=new_item.name,
                 details="O item foi adicionado ao estoque."
             )
+            
+            stock.updated_at = timezone.now()
+            stock.save()
             messages.success(request, "Item criado com sucesso!")
         
         elif 'update_name' in request.POST:
@@ -175,10 +202,19 @@ def stock_detail(request, stock_id):
                 old_name = item.name
                 old_qty_available = item.quantity_available
                 old_qty_needed = item.quantity_needed
+                old_price = item.price
+                old_item_type = item.item_type
 
                 new_name = request.POST.get('name', old_name)
                 new_qty_available = int(request.POST.get('quantity_available', old_qty_available))
                 new_qty_needed = int(request.POST.get('quantity_needed', old_qty_needed))
+                new_price = request.POST.get('price', old_price)
+                new_item_type = request.POST.get('item_type', old_item_type)
+                
+                try:
+                    new_price = Decimal(new_price)
+                except (InvalidOperation, TypeError):
+                    new_price = Decimal('0.00')
 
                 details_list = []
                 if old_name != new_name:
@@ -187,6 +223,10 @@ def stock_detail(request, stock_id):
                     details_list.append(f"Quantidade disponível alterada de {old_qty_available} para {new_qty_available}.")
                 if old_qty_needed != new_qty_needed:
                     details_list.append(f"Quantidade máxima alterada de {old_qty_needed} para {new_qty_needed}.")
+                if old_price != new_price:
+                    details_list.append(f"Preço alterado de R$ {old_price:.2f} para R$ {new_price:.2f}.")
+                if old_item_type != new_item_type:
+                    details_list.append(f"Tipo alterado de '{old_item_type}' para '{new_item_type}'.")
                 
                 if details_list:
                     History.objects.create(
@@ -200,7 +240,12 @@ def stock_detail(request, stock_id):
                     item.name = new_name
                     item.quantity_available = new_qty_available
                     item.quantity_needed = new_qty_needed
+                    item.price = new_price
+                    item.item_type = new_item_type
                     item.save()
+                    
+                    stock.updated_at = timezone.now()
+                    stock.save()
                     messages.success(request, "Item atualizado com sucesso!")
 
         elif 'delete_id' in request.POST:
@@ -216,9 +261,25 @@ def stock_detail(request, stock_id):
                     details=f"O item foi removido permanentemente."
                 )
                 item.delete()
+                
+                stock.updated_at = timezone.now()
+                stock.save()
                 messages.info(request, "Item excluído com sucesso.")
         
         return redirect('stock_detail', stock_id=stock.id)
+    
+    items = stock.items.all()
+    total_items = items.count()
+    
+    available_items = items.filter(quantity_available__gt=0).count()
+    
+    low_stock_items = 0
+    for item in items:
+        if item.quantity_needed > 0 and item.quantity_available < (item.quantity_needed / 2):
+            low_stock_items += 1
+    
+    total_value = sum(float(item.price) * item.quantity_available for item in items)
+    total_value = f"{total_value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
     
     history_list = stock.history_entries.all().select_related('user')
     
@@ -227,10 +288,13 @@ def stock_detail(request, stock_id):
 
     context = {
         'stock': stock,
-        'items': stock.items.all(),
+        'items': items,
         'can_edit': can_edit,
         'can_share': can_share,
         'history_page': history_page,
+        'available_items': available_items,
+        'low_stock_items': low_stock_items,
+        'total_value': total_value,  
     }
     return render(request, 'flowstock/estoque.html', context)
 
@@ -471,6 +535,8 @@ def share_stock(request, stock_id):
 
         if action_type and details:
             History.objects.create(stock=stock, user=request.user, action_type=action_type, details=details)
+            stock.updated_at = timezone.now()
+            stock.save()
         
         next_url = request.POST.get('next', reverse('home'))
         parsed_url = urlparse(next_url)
@@ -493,19 +559,47 @@ def create_group(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         parent_id = request.POST.get('parent')
+
         if not name:
             messages.error(request, "O nome do grupo não pode ser vazio.")
             return redirect(reverse('home') + '?view=groups')
-        
+
         if UserGroup.objects.filter(owner=request.user, name__iexact=name).exists():
-            messages.error(request, f"Você já possui um grupo chamado '{name}'. Por favor, escolha outro nome.")
-        else:
-            parent = None
-            if parent_id:
-                parent = get_object_or_404(UserGroup, id=parent_id, owner=request.user)
-            UserGroup.objects.create(owner=request.user, name=name, parent=parent)
-            messages.success(request, f"Grupo '{name}' criado com sucesso.")
+            messages.error(request, f"Você já possui um grupo chamado '{name}'.")
+            return redirect(reverse('home') + '?view=groups')
+
+        parent = get_object_or_404(UserGroup, id=parent_id, owner=request.user) if parent_id else None
+        new_group = UserGroup.objects.create(owner=request.user, name=name, parent=parent)
+        new_group.members.add(request.user)  # Adiciona o criador como membro/administrador
+
+        messages.success(request, f"Grupo '{name}' criado com sucesso.")
     return redirect(reverse('home') + '?view=groups')
+
+
+
+@login_required
+def update_group(request, group_id):
+    group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+    
+    if request.method == 'POST':
+        new_name = request.POST.get('name', '').strip()
+        
+        if not new_name:
+            messages.error(request, "O nome do grupo não pode ser vazio.")
+            return redirect(reverse('home') + '?view=groups')
+        
+        # Verifica se já existe outro grupo com esse nome
+        if UserGroup.objects.filter(owner=request.user, name__iexact=new_name).exclude(id=group_id).exists():
+            messages.error(request, f"Você já possui um grupo chamado '{new_name}'.")
+            return redirect(reverse('home') + '?view=groups')
+        
+        group.name = new_name
+        group.save()
+        messages.success(request, f"Nome do grupo atualizado para '{new_name}'.")
+    
+    return redirect(reverse('home') + '?view=groups')
+
+
 
 @login_required
 def delete_group(request, group_id):
@@ -534,32 +628,37 @@ def delete_subgroup(request, subgroup_id):
 
 @login_required
 def add_member_to_group(request, group_id):
-    group = get_object_or_404(UserGroup, id=group_id, owner=request.user)
+    group = get_object_or_404(UserGroup, id=group_id)
+
+    # ✅ Permitir apenas o dono adicionar
+    if group.owner != request.user:
+        messages.error(request, "Apenas o criador do grupo pode adicionar membros.")
+        return redirect(reverse('home') + '?view=groups')
+
     if request.method == 'POST':
-        identifier = request.POST.get('identifier')
+        identifier = request.POST.get('identifier', '').strip()
+        
+        if not identifier:
+            messages.error(request, "Por favor, digite um e-mail ou nome de usuário.")
+            return redirect(reverse('home') + '?view=groups')
+        
         try:
-            user_to_add = User.objects.get(Q(username__iexact=identifier) | Q(email__iexact=identifier))
-            if user_to_add == request.user:
-                messages.warning(request, "Você não pode adicionar a si mesmo.")
-            elif user_to_add in group.members.all():
-                 messages.warning(request, f"{user_to_add.username} já é membro deste grupo.")
+            user_to_add = User.objects.get(
+                Q(username__iexact=identifier) | Q(email__iexact=identifier)
+            )
+            
+            if user_to_add in group.members.all():
+                messages.warning(request, f"{user_to_add.username} já é membro deste grupo.")
             else:
                 group.members.add(user_to_add)
-                messages.success(request, f"{user_to_add.username} adicionado ao grupo '{group.name}'.")
+                messages.success(request, f"{user_to_add.username} foi adicionado ao grupo '{group.name}'.")
                 
-                shared_stocks_for_group = StockGroupMembership.objects.filter(group=group)
-                for g_membership in shared_stocks_for_group:
-                    StockMembership.objects.update_or_create(
-                        stock=g_membership.stock,
-                        user=user_to_add,
-                        defaults={'role': g_membership.role}
-                    )
-                if shared_stocks_for_group.exists():
-                    messages.info(request, f"Acesso aos estoques compartilhados foi concedido para {user_to_add.username}.")
-                    
         except User.DoesNotExist:
-            messages.error(request, f"Usuário '{identifier}' não encontrado.")
+            messages.error(request, f"Usuário '{identifier}' não encontrado. Verifique o nome de usuário ou e-mail.")
+    
     return redirect(reverse('home') + '?view=groups')
+
+
 
 @login_required
 def remove_member_from_group(request, group_id, user_id):
