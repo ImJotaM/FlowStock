@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.root_redirect),
+    path('', views.landing_page, name='landing'),
     path('home/', views.stock_list, name='home'),
     path('stock/create/', views.create_stock, name='stock-create'),
     path('stock/update/<int:stock_id>/', views.update_stock, name='stock-update'),
