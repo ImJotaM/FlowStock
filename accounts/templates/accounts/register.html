@@ -6,61 +6,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlowStock - Cadastro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            background-color: #fafbfc; 
+            font-family: 'Inter', sans-serif; 
+            color: #333; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .card {
+            border: 1px solid #dfe1e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s ease-in-out;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        .icon-wrapper {
+            background-color: #e9f2ff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+        .btn-gradient {
+            background-image: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.1s ease-in-out;
+            border: none;
+        }
+        .btn-gradient:hover { 
+            transform: scale(1.005);
+            color: white !important;
+        }
+        .form-control {
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            padding: 0.75rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+        .alert {
+            border-radius: 6px;
+            border: none;
+        }
+        .text-muted {
+            color: #5e6c84 !important;
+        }
+        .form-check-input:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #1d4ed8;
+        }
+        .brand-logo {
+            max-height: 110px;
+            width: auto;
+        }
+    </style>
 </head>
-<body style="background-color: rgb(240, 240, 240);">
-    <div class="container d-flex flex-column min-vh-100 justify-content-center align-items-center py-5">
-        <div class="card mb-3 p-5" style="max-width: 800px; border-radius: 15px;">
-            <div class="row g-0">
-                <div class="col-md-5 d-flex align-items-center">
-                    <img src="{% static 'flowstock/resources/img/brand.png' %}" class="img-fluid rounded-start" alt="FlowStock Logo">
-                </div>
-                <div class="col-md-7">
-                    <div class="card-body">
-                        <h1 class="h3 card-title text-center mb-4">Junte-se a nós!</h1>
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            {% if form.errors %}
-                                <div class="alert alert-danger p-2" role="alert">
-                                    {% for error in form.non_field_errors %}
-                                        {{ error }}<br>
-                                    {% endfor %}
-
-                                    {% for field in form %}
-                                        {% if field.errors %}
-                                            {% for error in field.errors %}
-                                                {{ error|safe }}<br>
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            
-                            {% for field in form %}
-                                <div class="mb-3">
-                                    <input type="{{ field.field.widget.input_type }}" 
-                                           class="form-control border-secondary" 
-                                           name="{{ field.name }}" 
-                                           id="{{ field.id_for_label }}" 
-                                           placeholder="{{ field.label }}"
-                                           value="{{ field.value|default:'' }}">
-                                </div>
-                            {% endfor %}
-                            
-                            <div class="d-grid mb-3">
-                                <input type="submit" class="btn btn-primary bg-dark p-2" value="CADASTRAR">
-                            </div>
-
-                            <div class="text-center">
-                                <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}">Entre</a></p>
-                            </div>
-                        </form>
+<body>
+    <div class="container d-flex justify-content-center align-items-center py-5">
+        <div class="card p-4" style="max-width: 700px; width: 100%;">
+            <div class="card-body p-4">
+                <div class="text-center mb-3">
+                    <div class="mb-2">
+                        <img src="{% static 'flowstock/resources/img/brand.png' %}" class="brand-logo" alt="FlowStock Logo">
                     </div>
+                    <h1 class="h3 card-title fw-bold mb-2">Junte-se a nós!</h1>
+                    <p class="text-muted">Crie sua conta para começar</p>
                 </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger p-3 mb-4" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+
+                            {% for field in form %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        {{ error|safe }}<br>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <input type="{{ field.field.widget.input_type }}" 
+                                   class="form-control" 
+                                   name="{{ field.name }}" 
+                                   id="{{ field.id_for_label }}" 
+                                   placeholder="{{ field.label }}"
+                                   value="{{ field.value|default:'' }}">
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-gradient p-2">CADASTRAR</button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}">Entre</a></p>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
