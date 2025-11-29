@@ -371,14 +371,15 @@
                                         </div>
                                         {% if group.owner == request.user %}
                                             <div class="d-flex align-items-center gap-2 ms-3">
-                                                {% if group.subgroups.all %}
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle btn-action-custom" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 150px;">
-                                                            Atribuir Subgrupo
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            {% for subgroup in group.subgroups.all %}
-                                                                {% if member not in subgroup.members.all %}
+                                                {% load custom_group_tags %}
+                                                {% with available_subgroups=group.subgroups.all|available_for:member %}
+                                                    {% if available_subgroups %}
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle btn-action-custom" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 150px;">
+                                                                Atribuir Subgrupo
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                {% for subgroup in available_subgroups %}
                                                                     <li>
                                                                         <form method="post" action="{% url 'member-assign-subgroup' group_id=group.id member_id=member.id %}">
                                                                             {% csrf_token %}
@@ -388,11 +389,12 @@
                                                                             </button>
                                                                         </form>
                                                                     </li>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </div>
-                                                {% endif %}
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endwith %}
+
                                                 <form method="post" action="{% url 'group-remove-member' group.id member.id %}">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Membro">
@@ -514,7 +516,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Habilitar/desabilitar botão de adicionar subgrupo baseado no input
