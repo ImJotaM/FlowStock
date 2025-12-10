@@ -1,0 +1,387 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowStock - Gestão de Estoque Inteligente</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bs-body-font-family: 'Inter', sans-serif;
+      --bs-border-radius: 0.75rem; /* Equivalent to rounded-xl */
+      --bs-border-radius-pill: 50rem;
+    }
+
+    body {
+      background-color: #f8fafc;
+      background-image: linear-gradient(to bottom right, #f8fafc, #eff6ff, #eef2ff);
+    }
+    
+    /* --- Utilities --- */
+    .backdrop-blur {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    .text-gradient-primary {
+      background-image: linear-gradient(to right, #2563eb, #0026ffff, #1900ffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+    .btn-gradient-blue {
+      background-image: linear-gradient(to right, #3b82f6, #2563eb);
+      border: none;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-gradient-blue:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4), 0 4px 6px -4px rgba(59, 130, 246, 0.4);
+    }
+    .btn-outline-custom {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      border: 2px solid #e5e7eb;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-outline-custom:hover {
+      border-color: #93c5fd;
+      background-color: white;
+    }
+    .pt-extra-lg {
+      padding-top: 8rem; /* pt-32 */
+    }
+    .pb-extra-lg {
+      padding-bottom: 5rem; /* pb-20 */
+    }
+    .py-extra-lg {
+      padding-top: 5rem; /* py-20 */
+      padding-bottom: 5rem;
+    }
+    
+    /* --- Header --- */
+    .header {
+      border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    }
+    .logo-wrapper {
+        background-image: linear-gradient(to bottom right, #3b82f6, #2563eb);
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -4px rgba(59, 130, 246, 0.3);
+    }
+    .brand-text {
+      font-size: 1.5rem;
+      background-image: linear-gradient(to right, #2563eb, #4f46e5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* --- Hero Section --- */
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4.5rem); /* Responsive font size */
+        line-height: 1.2;
+    }
+    .hero-subtitle {
+        font-size: clamp(1.125rem, 2vw, 1.5rem);
+        color: #4b5563;
+        line-height: 1.6;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(219, 234, 254, 0.8);
+      backdrop-filter: blur(2px);
+      color: #1d4ed8;
+      border: 1px solid rgba(191, 219, 254, 0.5);
+      border-radius: var(--bs-border-radius-pill);
+      padding: 0.5rem 1rem;
+    }
+    .hero-mockup {
+      box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(229, 231, 235, 0.5);
+      background-color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      border-radius: 1rem; /* rounded-2xl */
+    }
+    .floating-blob {
+      position: absolute;
+      width: 8rem;
+      height: 8rem;
+      border-radius: 9999px;
+      filter: blur(48px);
+      opacity: 0.3;
+      animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .blob-1 {
+      top: -1.5rem;
+      right: -1.5rem;
+      background-image: linear-gradient(to bottom right, #c084fc, #f472b6);
+    }
+    .blob-2 {
+      bottom: -1.5rem;
+      left: -1.5rem;
+      background-image: linear-gradient(to bottom right, #60a5fa, #22d3ee);
+      animation-delay: 1s;
+    }
+    @keyframes pulse {
+      50% { opacity: 0.2; }
+    }
+
+    /* --- Features Section --- */
+    .section-features {
+        background-color: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(4px);
+    }
+    .feature-card {
+      border: 1px solid rgba(229, 231, 235, 0.5);
+      background-image: linear-gradient(to bottom right, white, rgba(239, 246, 255, 0.5));
+      border-radius: 1rem;
+      transition: all 0.3s ease-in-out;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+    }
+    .feature-card .icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: var(--bs-border-radius);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease-in-out;
+    }
+    .feature-card:hover .icon-wrapper {
+      transform: scale(1.1);
+    }
+    .icon-wrapper.bg-blue { background-image: linear-gradient(to bottom right, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);}
+    .icon-wrapper.bg-indigo { background-image: linear-gradient(to bottom right, #6366f1, #4f46e5); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);}
+    .icon-wrapper.bg-purple { background-image: linear-gradient(to bottom right, #a855f7, #9333ea); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);}
+    .icon-wrapper.bg-cyan { background-image: linear-gradient(to bottom right, #22d3ee, #06b6d4); box-shadow: 0 4px 15px rgba(34, 211, 238, 0.4);}
+    .icon-wrapper.bg-pink { background-image: linear-gradient(to bottom right, #ec4899, #d946ef); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);}
+    .icon-wrapper.bg-orange { background-image: linear-gradient(to bottom right, #f97316, #ea580c); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);}
+
+    /* --- CTA Section --- */
+    .cta-card {
+      background-image: linear-gradient(to bottom right, #2563eb, #0026ffff, #1900ffff);
+      border-radius: 1.5rem; /* rounded-3xl */
+    }
+    .cta-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+');
+      opacity: 0.3;
+    }
+    .btn-cta {
+      background-color: white;
+      color: #2563eb;
+      font-weight: 700;
+      font-size: 1.125rem;
+      padding: 1.25rem 2.5rem;
+      transition: all 0.3s ease-in-out;
+    }
+    .btn-cta:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+    }
+    
+    /* --- Footer --- */
+    footer {
+        background-color: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(4px);
+        border-top: 1px solid rgba(229, 231, 235, 0.5);
+    }
+    .footer-logo {
+        background-image: linear-gradient(to bottom right, #3b82f6, #2563eb);
+    }
+
+    /* --- Arrow Animation on Buttons --- */
+    .btn .arrow-icon {
+        transition: transform 0.2s ease;
+    }
+    .btn:hover .arrow-icon {
+        transform: translateX(4px);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header fixed-top backdrop-blur">
+    <nav class="container-xl">
+      <div class="d-flex align-items-center justify-content-between" style="height: 4rem;">
+        <a class="navbar-brand p-0" href="{% url 'landing' %}">
+            <img src="{% static 'flowstock/resources/img/logo.jpg' %}" alt="FlowStock Logo" style="max-height: 100px; width: auto;">
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-gradient-blue text-white fw-semibold rounded-3 px-4 py-2">
+        Acessar Dashboard
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="pt-extra-lg pb-extra-lg">
+      <div class="container-xl">
+        <div class="text-center mb-5">
+          <div class="hero-badge mb-4">
+            <i data-lucide="zap" class="me-2" style="width:1rem; height:1rem;"></i>
+            <span>Sistema Inteligente de Gestão de Estoques</span>
+          </div>
+          <h2 class="hero-title fw-bold text-dark mb-4">
+            Gerencie seu estoque
+            <br>
+            <span class="text-gradient-primary">de forma inteligente</span>
+          </h2>
+          <p class="hero-subtitle mb-5 mx-auto" style="max-width: 48rem;">
+            FlowStock é a solução completa para controle de estoque, colaboração em equipe e análise de dados em tempo real.
+          </p>
+          <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3">
+            <a href="{% url 'home' %}" class="btn btn-gradient-blue text-white fw-semibold rounded-3 px-4 py-3 d-flex align-items-center gap-2">
+                <span>Começar Agora</span>
+                <i data-lucide="arrow-right" class="arrow-icon" style="width:1.25rem; height:1.25rem;"></i>
+            </a>
+            {% comment %} <a href="#" class="btn btn-outline-custom text-dark fw-semibold rounded-3 px-4 py-3">
+              Ver Demonstração
+            </a> {% endcomment %}
+          </div>
+        </div>
+        
+        <div class="position-relative mx-auto" style="max-width: 64rem;">
+          <div class="hero-mockup position-relative overflow-hidden p-2">
+            <img src="{% static 'flowstock/resources/img/estoque.png' %}" alt="FlowStock Dashboard Preview" class="img-fluid rounded-2">
+          </div>
+          <div class="floating-blob blob-1"></div>
+          <div class="floating-blob blob-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-extra-lg section-features">
+      <div class="container-xl">
+        <div class="text-center mb-5 pb-4">
+          <h3 class="display-5 fw-bold text-dark mb-3">Recursos Poderosos</h3>
+          <p class="fs-5 text-secondary mx-auto" style="max-width: 42rem;">
+            Tudo que você precisa para gerenciar seu inventário com eficiência e precisão
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-blue mb-4">
+                <i data-lucide="package" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Gestão Completa</h4>
+              <p class="text-secondary">
+                Controle total sobre seus estoques com interface intuitiva e recursos avançados de organização.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-indigo mb-4">
+                <i data-lucide="users" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Colaboração em Equipe</h4>
+              <p class="text-secondary">
+                Compartilhe estoques com sua equipe, gerencie permissões e trabalhe em conjunto em tempo real.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-purple mb-4">
+                <i data-lucide="bar-chart-3" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Análise em Tempo Real</h4>
+              <p class="text-secondary">
+                Visualize métricas importantes e tome decisões baseadas em dados atualizados instantaneamente.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-cyan mb-4">
+                <i data-lucide="trending-up" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Crescimento Escalável</h4>
+              <p class="text-secondary">
+                Sistema que cresce com seu negócio, suportando milhares de produtos sem perder performance.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-pink mb-4">
+                <i data-lucide="shield" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Segurança Avançada</h4>
+              <p class="text-secondary">
+                Seus dados protegidos com criptografia de ponta e controles de acesso granulares.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="feature-card p-4 h-100">
+              <div class="icon-wrapper bg-orange mb-4">
+                <i data-lucide="zap" class="text-white"></i>
+              </div>
+              <h4 class="fs-5 fw-bold text-dark mb-2">Performance Otimizada</h4>
+              <p class="text-secondary">
+                Interface rápida e responsiva que funciona perfeitamente em qualquer dispositivo.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-extra-lg">
+      <div class="container-xl" style="max-width: 64rem;">
+        <div class="cta-card position-relative overflow-hidden">
+          <div class="cta-pattern"></div>
+          <div class="position-relative text-center p-5">
+            <h3 class="display-5 fw-bold text-white mb-4">
+              Pronto para transformar sua gestão de estoque?
+            </h3>
+            <p class="fs-5 text-light opacity-75 mb-5 mx-auto" style="max-width: 42rem;">
+              Junte-se a milhares de empresas que já otimizaram seu estoque com o FlowStock
+            </p>
+            <a href="{% url 'home' %}" class="btn btn-cta rounded-3 d-inline-flex align-items-center gap-2">
+            <span>Comece Gratuitamente</span>
+            <i data-lucide="arrow-right" class="arrow-icon"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <footer class="py-4">
+    <div class="container-xl">
+      <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <a href="{% url 'landing' %}">
+            <img src="{% static 'flowstock/resources/img/logo.jpg' %}" alt="FlowStock Logo" style="max-height: 100px; width: auto;">
+        </a>
+        <p class="text-secondary m-0">
+          © 2025 FlowStock. Todos os direitos reservados.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+
+</body>
+</html>

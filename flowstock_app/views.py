@@ -735,3 +735,7 @@ def stock_history(request, stock_id):
         'history_page': history_page
     }
     return render(request, 'flowstock/stock_history.html', context)
+
+
+def landing_page(request):
+    return render(request, 'flowstock/landing.html')
